@@ -26,6 +26,11 @@ const Navbar = () => {
     navigate("/auth");
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsOpen(false); // Close mobile menu when navigating
+  };
+
   return (
     <nav className="bg-primary/95 backdrop-blur-sm shadow-sm fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +48,12 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-6">
-            <a href="#courses" className="text-primary-foreground hover:text-secondary transition-colors">Courses</a>
+            <button 
+              onClick={() => handleNavigation('/courses')} 
+              className="text-primary-foreground hover:text-secondary transition-colors"
+            >
+              Courses
+            </button>
             <a href="#community" className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1">
               <Users size={18} />
               Community
@@ -96,7 +106,12 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-primary">
-            <a href="#courses" className="block px-3 py-2 text-primary-foreground hover:text-secondary">Courses</a>
+            <button 
+              onClick={() => handleNavigation('/courses')}
+              className="block w-full text-left px-3 py-2 text-primary-foreground hover:text-secondary"
+            >
+              Courses
+            </button>
             <a href="#community" className="block px-3 py-2 text-primary-foreground hover:text-secondary flex items-center gap-2">
               <Users size={18} />
               Community
