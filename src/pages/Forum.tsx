@@ -10,7 +10,7 @@ import TopicList from "@/components/forum/TopicList";
 import NewTopicDialog from "@/components/forum/NewTopicDialog";
 import CategoryManagement from "@/components/forum/CategoryManagement";
 
-interface TopicWithUser {
+interface Topic {
   id: string;
   title: string;
   content: string;
@@ -18,8 +18,10 @@ interface TopicWithUser {
   user_id: string;
   category_id: string;
   updated_at: string;
-  username: string | null;
-  full_name: string | null;
+  profiles: {
+    username: string | null;
+    full_name: string | null;
+  };
   reply_count: number;
 }
 
@@ -27,7 +29,7 @@ const Forum = () => {
   const session = useSession();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [topics, setTopics] = useState<TopicWithUser[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
 
@@ -64,9 +66,11 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          username:profiles(username),
-          full_name:profiles(full_name),
-          forum_replies(count)
+          profiles (
+            username,
+            full_name
+          ),
+          forum_replies (count)
         `)
         .order("created_at", { ascending: false });
 
@@ -85,8 +89,10 @@ const Forum = () => {
       
       const transformedTopics = data.map(topic => ({
         ...topic,
-        username: topic.username?.[0]?.username || null,
-        full_name: topic.full_name?.[0]?.full_name || null,
+        profiles: {
+          username: topic.profiles?.[0]?.username || null,
+          full_name: topic.profiles?.[0]?.full_name || null
+        },
         reply_count: topic.forum_replies?.[0]?.count || 0
       }));
 

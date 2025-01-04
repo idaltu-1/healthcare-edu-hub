@@ -3,15 +3,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MessageSquare, UserRound } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+interface Profile {
+  username: string | null;
+  full_name: string | null;
+}
+
 interface Topic {
   id: string;
   title: string;
   content: string;
   created_at: string;
-  profiles: {
-    username: string | null;
-    full_name: string | null;
-  } | null;
+  profiles: Profile;
   reply_count: number;
 }
 
