@@ -3,11 +3,13 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { BookOpen, CheckCircle, Clock } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useSession } from "@supabase/auth-helpers-react";
 import CourseResourceManager from "@/components/CourseResourceManager";
+import CourseProgress from "@/components/course/CourseProgress";
+import ModuleList from "@/components/course/ModuleList";
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -33,12 +35,8 @@ const CourseDetail = () => {
         .insert([{ course_id: courseId, user_id: session.user.id }]);
 
       if (error) {
-        if (error.code === "23505") {
-          toast.error("You are already enrolled in this course");
-        } else {
-          console.error("Error recording enrollment:", error);
-          toast.error("Failed to record enrollment");
-        }
+        console.error("Error recording enrollment:", error);
+        toast.error("Failed to record enrollment");
         return;
       }
 
@@ -63,20 +61,6 @@ const CourseDetail = () => {
     },
   });
 
-  const { data: modules, isLoading: modulesLoading } = useQuery({
-    queryKey: ["course-modules", courseId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("course_modules")
-        .select("*")
-        .eq("course_id", courseId)
-        .order("order_index");
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: enrollment } = useQuery({
     queryKey: ["enrollment", courseId, session?.user?.id],
     enabled: !!session?.user?.id,
@@ -93,7 +77,7 @@ const CourseDetail = () => {
     },
   });
 
-  if (courseLoading || modulesLoading) {
+  if (courseLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -120,7 +104,6 @@ const CourseDetail = () => {
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Course Info */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
@@ -139,61 +122,21 @@ const CourseDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Course Modules */}
             <div className="mt-8">
               <h2 className="text-xl font-semibold mb-4">Course Modules</h2>
-              <div className="space-y-4">
-                {modules?.map((module) => (
-                  <Card key={module.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start space-x-4">
-                        {enrollment ? (
-                          <CheckCircle className="h-6 w-6 text-primary mt-1" />
-                        ) : (
-                          <Clock className="h-6 w-6 text-gray-400 mt-1" />
-                        )}
-                        <div>
-                          <h3 className="font-semibold">{module.title}</h3>
-                          <p className="text-gray-600">{module.description}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <ModuleList courseId={courseId!} isEnrolled={!!enrollment} />
             </div>
 
-            {/* Course Resources */}
             <div className="mt-8">
               <h2 className="text-xl font-semibold mb-4">Course Resources</h2>
               <CourseResourceManager courseId={courseId!} />
             </div>
           </div>
 
-          {/* Course Progress/Status */}
           <div>
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Course Status</h2>
-                {enrollment ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2 text-green-600">
-                      <CheckCircle className="h-5 w-5" />
-                      <span>Enrolled</span>
-                    </div>
-                    <p className="text-gray-600">
-                      You have access to all course materials.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <p className="text-gray-600">
-                      Enroll to get access to all course materials.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {enrollment && session?.user?.id && (
+              <CourseProgress courseId={courseId!} userId={session.user.id} />
+            )}
           </div>
         </div>
       </div>
