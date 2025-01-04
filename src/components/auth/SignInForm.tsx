@@ -1,17 +1,27 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-interface SignInFormProps {
-  onSuccess?: (event: AuthChangeEvent, session: Session | null) => void;
-}
+export const SignInForm = () => {
+  const navigate = useNavigate();
 
-export const SignInForm = ({ onSuccess }: SignInFormProps) => {
-  // Set up auth state change listener
-  if (onSuccess) {
-    supabase.auth.onAuthStateChange(onSuccess);
-  }
+  useEffect(() => {
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session);
+      if (event === 'SIGNED_IN' && session) {
+        console.log("User signed in, redirecting to home");
+        navigate('/');
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   return (
     <Auth
@@ -45,7 +55,6 @@ export const SignInForm = ({ onSuccess }: SignInFormProps) => {
       theme="light"
       providers={[]}
       redirectTo={`${window.location.origin}/auth`}
-      view="sign_in"
     />
   );
 };
