@@ -34,9 +34,16 @@ const PasswordChangeForm = () => {
       setIsLoading(true);
       console.log("Attempting to update password");
 
+      // Get current user's email
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) {
+        toast.error("Unable to verify current user");
+        return;
+      }
+
       // First verify the current password by trying to sign in
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: supabase.auth.getUser().then(response => response.data.user?.email || ''),
+        email: user.email,
         password: values.currentPassword,
       });
 

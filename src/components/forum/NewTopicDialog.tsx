@@ -15,6 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSession } from "@supabase/auth-helpers-react";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface NewTopicDialogProps {
   isOpen: boolean;
@@ -29,6 +32,8 @@ const NewTopicDialog = ({
   onCreateTopic,
   categories,
 }: NewTopicDialogProps) => {
+  const session = useSession();
+  const navigate = useNavigate();
   const [newTopic, setNewTopic] = useState({
     title: "",
     content: "",
@@ -36,6 +41,11 @@ const NewTopicDialog = ({
   });
 
   const handleSubmit = () => {
+    if (!session) {
+      toast.error("Please sign in to create a topic");
+      navigate("/auth");
+      return;
+    }
     onCreateTopic(newTopic);
     setNewTopic({ title: "", content: "", category_id: "" });
   };
