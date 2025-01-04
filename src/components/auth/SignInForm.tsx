@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { HashHandler } from "./components/HashHandler";
 import { authAppearance } from "./components/AuthAppearance";
-import { handleAuthStateChange } from "./utils/authStateHandler";
+import { handleSessionEvents } from "./utils/authStateHandler";
 import { toast } from "sonner";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 
@@ -25,19 +25,7 @@ export const SignInForm = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session) => {
-        console.log("Auth state changed:", event, session);
-        
-        if (event === 'SIGNED_IN' && session) {
-          console.log("User signed in successfully");
-          toast.success("Successfully signed in!");
-          navigate('/');
-        } else if (event === 'SIGNED_OUT') {
-          console.log("User signed out");
-        } else if (event === 'USER_UPDATED') {
-          console.log("User updated");
-        } else if (event === 'PASSWORD_RECOVERY') {
-          console.log("Password recovery initiated");
-        }
+        handleSessionEvents(event, session, navigate);
       }
     );
 
