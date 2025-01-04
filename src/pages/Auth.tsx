@@ -63,21 +63,13 @@ const AuthPage = () => {
       // Handle email confirmation and user updates
       if (event === 'USER_UPDATED') {
         console.log('User updated - Email verification status:', session?.user?.email_confirmed_at);
-        toast({
-          title: "Email Verification Required",
-          description: "Please check your email for the confirmation link. You won't be able to access all features until you verify your email.",
-          duration: 8000,
-        });
-      }
-
-      // Handle initial signup
-      if (event === 'USER_UPDATED' && !session?.user?.email_confirmed_at) {
-        console.log('New user signed up - Verification email should be sent');
-        toast({
-          title: "Welcome to Doc.MBA!",
-          description: "Please check your email for the verification link. You'll need to verify your email to access all features.",
-          duration: 8000,
-        });
+        if (!session?.user?.email_confirmed_at) {
+          toast({
+            title: "Email Verification Required",
+            description: "Please check your email for the confirmation link. You won't be able to access all features until you verify your email.",
+            duration: 8000,
+          });
+        }
       }
     });
 
@@ -117,6 +109,10 @@ const AuthPage = () => {
       </div>
     );
   }
+
+  const redirectTo = process.env.NODE_ENV === 'production' 
+    ? 'https://doc.mba/auth'
+    : `${window.location.origin}/auth`;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -176,7 +172,7 @@ const AuthPage = () => {
               }}
               theme="light"
               providers={[]}
-              redirectTo={`${window.location.origin}/auth`}
+              redirectTo={redirectTo}
             />
           </div>
         </div>
