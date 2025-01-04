@@ -7,6 +7,7 @@ import { BookOpen, CheckCircle, Clock } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useSession } from "@supabase/auth-helpers-react";
+import CourseResourceManager from "@/components/CourseResourceManager";
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -160,6 +161,12 @@ const CourseDetail = () => {
                   </Card>
                 ))}
               </div>
+            </div>
+
+            {/* Course Resources */}
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Course Resources</h2>
+              <CourseResourceManager courseId={courseId!} />
             </div>
           </div>
 
