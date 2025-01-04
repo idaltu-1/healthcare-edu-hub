@@ -124,7 +124,7 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           showLinks={true}
-          redirectTo={window.location.origin}
+          redirectTo="https://doc.mba"
           localization={{
             variables: {
               sign_in: {
