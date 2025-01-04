@@ -4,6 +4,7 @@ import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
 import Courses from "@/pages/Courses";
 import CourseDetail from "@/pages/CourseDetail";
+import Settings from "@/pages/Settings";
 import { Toaster } from "sonner";
 
 // Create a client
@@ -25,6 +26,7 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:courseId" element={<CourseDetail />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
         <Toaster />
       </Router>
