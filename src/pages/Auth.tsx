@@ -1,53 +1,18 @@
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const signUpSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  practiceName: z.string().min(2, "Practice name must be at least 2 characters"),
-  specialty: z.string().min(2, "Specialty must be at least 2 characters"),
-  phoneNumber: z.string().min(10, "Please enter a valid phone number"),
-});
+import { SignInForm } from "@/components/auth/SignInForm";
+import { RegistrationForm } from "@/components/auth/RegistrationForm";
+import { Loader2 } from "lucide-react";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [isRegistering, setIsRegistering] = useState(false);
-
-  const form = useForm({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      fullName: "",
-      practiceName: "",
-      specialty: "",
-      phoneNumber: "",
-    },
-  });
 
   useEffect(() => {
-    // Check if user is already logged in
     supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
       setIsLoading(false);
@@ -63,89 +28,12 @@ const AuthPage = () => {
         return;
       }
 
-      if (event === 'SIGNED_IN') {
-        if (session?.user) {
-          console.log('User signed in:', session.user);
-          
-          // Get user profile to check membership tier
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('membership_tier')
-            .eq('id', session.user.id)
-            .single();
-
-          if (error) {
-            console.error('Error fetching profile:', error);
-            toast({
-              title: "Error",
-              description: "Error fetching user profile",
-              variant: "destructive",
-              duration: 5000,
-            });
-            return;
-          }
-
-          console.log('User profile:', profile);
-          toast({
-            title: "Welcome!",
-            description: "Successfully logged in",
-            duration: 3000,
-          });
-          navigate("/");
-        }
+      if (event === 'SIGNED_IN' && session?.user) {
+        console.log('User signed in:', session.user);
+        navigate("/");
       }
     });
-
-    // Check for auth errors in URL
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const error = hashParams.get('error');
-    const errorDescription = hashParams.get('error_description');
-    
-    if (error) {
-      console.error('Auth error:', error, errorDescription);
-      toast({
-        title: "Authentication Error",
-        description: errorDescription || 'An error occurred during authentication',
-        variant: "destructive",
-        duration: 5000,
-      });
-    }
   }, [navigate]);
-
-  const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            full_name: values.fullName,
-            practice_name: values.practiceName,
-            specialty: values.specialty,
-            phone_number: values.phoneNumber,
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      if (data) {
-        toast({
-          title: "Registration Successful",
-          description: "Please check your email to verify your account",
-          duration: 5000,
-        });
-      }
-    } catch (error: any) {
-      console.error('Error during registration:', error);
-      toast({
-        title: "Registration Error",
-        description: error.message,
-        variant: "destructive",
-        duration: 5000,
-      });
-    }
-  };
 
   const handleBackToHome = () => {
     navigate('/');
@@ -194,133 +82,11 @@ const AuthPage = () => {
               </TabsList>
               
               <TabsContent value="signin">
-                <Auth
-                  supabaseClient={supabase}
-                  appearance={{ 
-                    theme: ThemeSupa,
-                    variables: {
-                      default: {
-                        colors: {
-                          brand: '#1a1f2c',
-                          brandAccent: '#c6a052',
-                          inputBackground: 'white',
-                          inputText: '#1a1f2c',
-                          inputPlaceholder: '#64748b',
-                          messageText: '#1a1f2c',
-                          messageTextDanger: '#ef4444',
-                        },
-                        radii: {
-                          borderRadiusButton: '0.5rem',
-                          buttonBorderRadius: '0.5rem',
-                          inputBorderRadius: '0.5rem',
-                        },
-                      }
-                    },
-                    className: {
-                      button: 'bg-primary hover:bg-primary/90 text-primary-foreground',
-                      input: 'border-input bg-background',
-                      label: 'text-foreground',
-                    }
-                  }}
-                  theme="light"
-                  providers={[]}
-                  redirectTo={`${window.location.origin}/auth`}
-                  view="sign_in"
-                />
+                <SignInForm />
               </TabsContent>
               
               <TabsContent value="signup">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleSignUp)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="Enter your email" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="Create a password" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your full name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="practiceName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Practice Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your practice name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="specialty"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Specialty</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your specialty" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your phone number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <Button type="submit" className="w-full">
-                      Create Account
-                    </Button>
-                  </form>
-                </Form>
+                <RegistrationForm />
               </TabsContent>
             </Tabs>
           </div>
