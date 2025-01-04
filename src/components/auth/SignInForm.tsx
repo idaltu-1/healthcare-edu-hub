@@ -9,10 +9,20 @@ export const SignInForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check URL hash for password reset token
-    const checkPasswordReset = async () => {
+    // Check URL hash for errors or password reset
+    const checkUrlHash = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const error = hashParams.get('error');
+      const errorDescription = hashParams.get('error_description');
       const type = hashParams.get('type');
+      
+      if (error) {
+        console.error('Auth error:', error, errorDescription);
+        // Show error message and clear hash
+        toast.error(errorDescription || 'Authentication error occurred');
+        window.location.hash = '';
+        return;
+      }
       
       if (type === 'recovery') {
         console.log('Password recovery flow detected');
@@ -40,7 +50,7 @@ export const SignInForm = () => {
       }
     };
 
-    checkPasswordReset();
+    checkUrlHash();
 
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
