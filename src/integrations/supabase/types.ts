@@ -232,26 +232,35 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
           created_at: string
+          full_name: string | null
           id: string
           membership_tier: Database["public"]["Enums"]["membership_tier"]
+          phone_number: string | null
           updated_at: string
           username: string | null
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
+          full_name?: string | null
           id: string
           membership_tier?: Database["public"]["Enums"]["membership_tier"]
+          phone_number?: string | null
           updated_at?: string
           username?: string | null
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
+          full_name?: string | null
           id?: string
           membership_tier?: Database["public"]["Enums"]["membership_tier"]
+          phone_number?: string | null
           updated_at?: string
           username?: string | null
         }
