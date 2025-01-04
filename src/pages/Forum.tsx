@@ -17,10 +17,11 @@ interface TopicWithUser {
   created_at: string;
   user_id: string;
   category_id: string;
+  updated_at: string;
   profiles: {
     username: string | null;
     full_name: string | null;
-  } | null;
+  };
   reply_count: number;
 }
 
@@ -90,7 +91,7 @@ const Forum = () => {
       const transformedTopics = data.map(topic => ({
         ...topic,
         reply_count: topic.forum_replies?.[0]?.count || 0
-      }));
+      })) as TopicWithUser[];
 
       setTopics(transformedTopics);
     } catch (error) {
