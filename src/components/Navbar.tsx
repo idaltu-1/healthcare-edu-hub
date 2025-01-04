@@ -25,10 +25,12 @@ const Navbar = () => {
   };
 
   const handleAuth = () => {
+    console.log("Navigating to auth page"); // Debug log
     navigate("/auth");
   };
 
   const handleNavigation = (path: string) => {
+    console.log("Navigating to:", path); // Debug log
     navigate(path);
   };
 

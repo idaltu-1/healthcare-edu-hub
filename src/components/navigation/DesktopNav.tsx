@@ -66,7 +66,7 @@ const DesktopNav = ({
         <Button
           variant="ghost"
           onClick={handleAuth}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 hover:text-gray-900 cursor-pointer"
         >
           <LogIn className="h-5 w-5 mr-2" />
           Login

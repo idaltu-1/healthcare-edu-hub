@@ -79,7 +79,7 @@ const MobileNav = ({
               <Button
                 variant="ghost"
                 onClick={handleAuth}
-                className="justify-start"
+                className="justify-start cursor-pointer"
               >
                 <LogIn className="h-5 w-5 mr-2" />
                 Login
