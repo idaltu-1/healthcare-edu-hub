@@ -36,7 +36,7 @@ const features = [
 
 const Features = () => {
   return (
-    <div className="py-24 bg-white">
+    <div className="py-24 bg-primary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-primary sm:text-4xl">
@@ -50,9 +50,9 @@ const Features = () => {
         <div className="mt-20">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
-              <Card key={feature.name} className="border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+              <Card key={feature.name} className="border border-secondary/20 hover:border-secondary hover:shadow-lg transition-all duration-300">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white mb-4">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-secondary mb-4">
                     <feature.icon className="h-6 w-6" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-semibold text-primary mb-2">{feature.name}</h3>

@@ -25,16 +25,16 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#1a365d", // Deep navy blue
-          foreground: "#ffffff",
+          DEFAULT: "#1a1f2c", // Deep navy blue from logo
+          foreground: "#f5f5f0", // Off-white
         },
         secondary: {
-          DEFAULT: "#fbbf24", // Gold accent
-          foreground: "#1a365d",
+          DEFAULT: "#c6a052", // Gold from logo
+          foreground: "#1a1f2c",
         },
         accent: {
-          DEFAULT: "#60a5fa", // Light blue
-          foreground: "#ffffff",
+          DEFAULT: "#8ba3bc", // Light blue from logo
+          foreground: "#f5f5f0",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -54,8 +54,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
-        heading: ["Inter", "sans-serif"],
+        sans: ["Trajan Pro", "Inter", "sans-serif"],
+        heading: ["Trajan Pro", "Inter", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
