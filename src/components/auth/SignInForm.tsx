@@ -12,10 +12,10 @@ export const SignInForm = () => {
     // Check URL hash for errors or password reset
     const checkUrlHash = async () => {
       const hash = window.location.hash;
-      console.log('Current URL hash:', hash); // Debug log
+      console.log('Current URL hash:', hash);
       
       if (!hash) {
-        console.log('No hash present in URL'); // Debug log
+        console.log('No hash present in URL');
         return;
       }
 
@@ -26,7 +26,7 @@ export const SignInForm = () => {
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
       
-      console.log('Hash params:', { error, errorDescription, type, hasAccessToken: !!accessToken }); // Debug log
+      console.log('Hash params:', { error, errorDescription, type, hasAccessToken: !!accessToken });
       
       if (error) {
         console.error('Auth error:', error, errorDescription);
@@ -103,6 +103,9 @@ export const SignInForm = () => {
     };
   }, [navigate]);
 
+  const siteUrl = window.location.origin;
+  console.log('Site URL for redirects:', siteUrl);
+
   return (
     <Auth
       supabaseClient={supabase}
@@ -134,7 +137,7 @@ export const SignInForm = () => {
       }}
       theme="light"
       providers={[]}
-      redirectTo={`${window.location.origin}/auth`}
+      redirectTo={`${siteUrl}/auth`}
     />
   );
 };
