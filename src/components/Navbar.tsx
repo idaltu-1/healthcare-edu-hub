@@ -11,6 +11,8 @@ const Navbar = () => {
   const session = useSession();
   const supabase = useSupabaseClient();
 
+  console.log("Current session:", session); // Debug log
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -38,14 +40,14 @@ const Navbar = () => {
           <Logo handleNavigation={handleNavigation} />
           <DesktopNav
             menuItems={menuItems}
-            session={!!session}
+            session={session}
             handleNavigation={handleNavigation}
             handleLogout={handleLogout}
             handleAuth={handleAuth}
           />
           <MobileNav
             menuItems={menuItems}
-            session={!!session}
+            session={session}
             handleNavigation={handleNavigation}
             handleLogout={handleLogout}
             handleAuth={handleAuth}

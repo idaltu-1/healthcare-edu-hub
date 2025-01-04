@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { UserCog, LogOut, LogIn, Menu, Settings2 } from "lucide-react";
 import { MenuItem } from "./MenuItems";
+import { Session } from "@supabase/auth-helpers-react";
 import {
   Sheet,
   SheetContent,
@@ -9,7 +10,7 @@ import {
 
 interface MobileNavProps {
   menuItems: MenuItem[];
-  session: boolean;
+  session: Session | null;
   handleNavigation: (path: string) => void;
   handleLogout: () => void;
   handleAuth: () => void;
@@ -22,6 +23,8 @@ const MobileNav = ({
   handleLogout,
   handleAuth,
 }: MobileNavProps) => {
+  console.log("Mobile Nav session:", session); // Debug log
+
   return (
     <div className="md:hidden">
       <Sheet>

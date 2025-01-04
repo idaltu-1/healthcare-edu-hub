@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { UserCog, LogOut, LogIn, Settings2 } from "lucide-react";
 import { MenuItem } from "./MenuItems";
+import { Session } from "@supabase/auth-helpers-react";
 
 interface DesktopNavProps {
   menuItems: MenuItem[];
-  session: boolean;
+  session: Session | null;
   handleNavigation: (path: string) => void;
   handleLogout: () => void;
   handleAuth: () => void;
@@ -17,6 +18,8 @@ const DesktopNav = ({
   handleLogout,
   handleAuth,
 }: DesktopNavProps) => {
+  console.log("Desktop Nav session:", session); // Debug log
+
   return (
     <div className="hidden md:flex md:items-center md:space-x-4">
       {menuItems.map((item) => {
