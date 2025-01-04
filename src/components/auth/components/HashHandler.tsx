@@ -46,37 +46,46 @@ export const HashHandler = () => {
         }
 
         // Handle password recovery flow
-        if (type === 'recovery' && accessToken && refreshToken) {
+        if (type === 'recovery') {
           console.log('Processing password recovery flow');
           
+          if (!accessToken || !refreshToken) {
+            toast.error('Invalid recovery link');
+            navigate('/auth');
+            return;
+          }
+
+          // For recovery flow, immediately prompt for new password
+          const newPassword = prompt('Please enter your new password:');
+          if (!newPassword) {
+            toast.error('Password reset cancelled');
+            navigate('/auth');
+            return;
+          }
+
           try {
-            // For recovery flow, we'll immediately prompt for new password
-            const newPassword = prompt('Please enter your new password:');
-            if (newPassword) {
-              // Update the session temporarily to allow password change
-              const { data: { session }, error: sessionError } = await supabase.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken
-              });
+            // Update the session temporarily to allow password change
+            const { data: { session }, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
 
-              if (sessionError) throw sessionError;
+            if (sessionError) throw sessionError;
 
-              if (session) {
-                // Update password using the recovery token
-                const { error: updateError } = await supabase.auth.updateUser({
-                  password: newPassword
-                });
-
-                if (updateError) throw updateError;
-
-                toast.success('Password has been reset successfully');
-                // After password reset, redirect to home
-                navigate('/');
-              }
-            } else {
-              toast.error('Password reset cancelled');
-              navigate('/auth');
+            if (!session) {
+              throw new Error('Failed to establish session');
             }
+
+            // Update password using the recovery token
+            const { error: updateError } = await supabase.auth.updateUser({
+              password: newPassword
+            });
+
+            if (updateError) throw updateError;
+
+            toast.success('Password has been reset successfully');
+            // After password reset, redirect to home
+            navigate('/');
           } catch (error: any) {
             console.error('Error during password reset:', error);
             toast.error(error.message || 'Failed to process password reset');
