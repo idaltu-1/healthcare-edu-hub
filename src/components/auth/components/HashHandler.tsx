@@ -51,28 +51,32 @@ export const HashHandler = () => {
           console.log('Processing password recovery flow');
           
           try {
-            // Update the session with the provided tokens
-            const { data: { session }, error: sessionError } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken
-            });
+            // For recovery flow, we'll immediately prompt for new password
+            const newPassword = prompt('Please enter your new password:');
+            if (newPassword) {
+              // Update the session temporarily to allow password change
+              const { data: { session }, error: sessionError } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+              });
 
-            if (sessionError) {
-              console.error('Session error:', sessionError);
-              throw sessionError;
-            }
+              if (sessionError) throw sessionError;
 
-            if (session) {
-              // Prompt for new password
-              const newPassword = prompt('Please enter your new password:');
-              if (newPassword) {
-                await handlePasswordReset(newPassword, navigate);
+              if (session) {
+                // Update password using the recovery token
+                const { error: updateError } = await supabase.auth.updateUser({
+                  password: newPassword
+                });
+
+                if (updateError) throw updateError;
+
                 toast.success('Password has been reset successfully');
+                // After password reset, redirect to home
                 navigate('/');
-              } else {
-                toast.error('Password reset cancelled');
-                navigate('/auth');
               }
+            } else {
+              toast.error('Password reset cancelled');
+              navigate('/auth');
             }
           } catch (error: any) {
             console.error('Error during password reset:', error);
