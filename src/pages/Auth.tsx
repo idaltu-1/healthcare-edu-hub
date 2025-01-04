@@ -78,7 +78,7 @@ const AuthPage = () => {
           }}
           theme="light"
           providers={[]}
-          redirectTo="http://localhost:5173"
+          redirectTo={window.location.origin}
         />
       </div>
     </div>
