@@ -280,6 +280,8 @@ export type Database = {
           id: string
           membership_tier: Database["public"]["Enums"]["membership_tier"]
           phone_number: string | null
+          practice_name: string | null
+          specialty: string | null
           updated_at: string
           username: string | null
         }
@@ -291,6 +293,8 @@ export type Database = {
           id: string
           membership_tier?: Database["public"]["Enums"]["membership_tier"]
           phone_number?: string | null
+          practice_name?: string | null
+          specialty?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -302,6 +306,8 @@ export type Database = {
           id?: string
           membership_tier?: Database["public"]["Enums"]["membership_tier"]
           phone_number?: string | null
+          practice_name?: string | null
+          specialty?: string | null
           updated_at?: string
           username?: string | null
         }

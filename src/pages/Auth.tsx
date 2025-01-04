@@ -6,10 +6,45 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const signUpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  fullName: z.string().min(2, "Full name must be at least 2 characters"),
+  practiceName: z.string().min(2, "Practice name must be at least 2 characters"),
+  specialty: z.string().min(2, "Specialty must be at least 2 characters"),
+  phoneNumber: z.string().min(10, "Please enter a valid phone number"),
+});
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const form = useForm({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      fullName: "",
+      practiceName: "",
+      specialty: "",
+      phoneNumber: "",
+    },
+  });
 
   useEffect(() => {
     // Check if user is already logged in
@@ -19,7 +54,6 @@ const AuthPage = () => {
       
       if (event === 'PASSWORD_RECOVERY') {
         console.log('Password recovery event detected');
-        // Redirect to settings page for password reset
         navigate("/settings");
         toast({
           title: "Password Reset",
@@ -53,23 +87,11 @@ const AuthPage = () => {
 
           console.log('User profile:', profile);
           toast({
-            title: "Welcome back!",
+            title: "Welcome!",
             description: "Successfully logged in",
             duration: 3000,
           });
           navigate("/");
-        }
-      }
-
-      // Handle email confirmation and user updates
-      if (event === 'USER_UPDATED') {
-        console.log('User updated - Email verification status:', session?.user?.email_confirmed_at);
-        if (!session?.user?.email_confirmed_at) {
-          toast({
-            title: "Email Verification Required",
-            description: "Please check your email for the confirmation link. You won't be able to access all features until you verify your email.",
-            duration: 8000,
-          });
         }
       }
     });
@@ -81,35 +103,49 @@ const AuthPage = () => {
     
     if (error) {
       console.error('Auth error:', error, errorDescription);
-      if (error === 'access_denied' && errorDescription?.includes('Email link is invalid')) {
-        toast({
-          title: "Link Expired",
-          description: "The email confirmation link has expired. Please request a new one.",
-          variant: "destructive",
-          duration: 5000,
-        });
-      } else {
-        toast({
-          title: "Authentication Error",
-          description: errorDescription || 'An error occurred during authentication',
-          variant: "destructive",
-          duration: 5000,
-        });
-      }
-    }
-
-    // Check if we're in a password reset flow from the URL
-    const type = hashParams.get('type');
-    if (type === 'recovery') {
-      console.log('Password reset flow detected from URL');
-      navigate('/settings');
       toast({
-        title: "Password Reset",
-        description: "Please set your new password",
+        title: "Authentication Error",
+        description: errorDescription || 'An error occurred during authentication',
+        variant: "destructive",
         duration: 5000,
       });
     }
   }, [navigate]);
+
+  const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            full_name: values.fullName,
+            practice_name: values.practiceName,
+            specialty: values.specialty,
+            phone_number: values.phoneNumber,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        toast({
+          title: "Registration Successful",
+          description: "Please check your email to verify your account",
+          duration: 5000,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error during registration:', error);
+      toast({
+        title: "Registration Error",
+        description: error.message,
+        variant: "destructive",
+        duration: 5000,
+      });
+    }
+  };
 
   const handleBackToHome = () => {
     navigate('/');
@@ -122,8 +158,6 @@ const AuthPage = () => {
       </div>
     );
   }
-
-  const redirectTo = `${window.location.origin}/auth`;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -153,38 +187,142 @@ const AuthPage = () => {
           </div>
           
           <div className="bg-card p-6 rounded-lg shadow-lg border">
-            <Auth
-              supabaseClient={supabase}
-              appearance={{ 
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: '#1a1f2c',
-                      brandAccent: '#c6a052',
-                      inputBackground: 'white',
-                      inputText: '#1a1f2c',
-                      inputPlaceholder: '#64748b',
-                      messageText: '#1a1f2c',
-                      messageTextDanger: '#ef4444',
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Register</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="signin">
+                <Auth
+                  supabaseClient={supabase}
+                  appearance={{ 
+                    theme: ThemeSupa,
+                    variables: {
+                      default: {
+                        colors: {
+                          brand: '#1a1f2c',
+                          brandAccent: '#c6a052',
+                          inputBackground: 'white',
+                          inputText: '#1a1f2c',
+                          inputPlaceholder: '#64748b',
+                          messageText: '#1a1f2c',
+                          messageTextDanger: '#ef4444',
+                        },
+                        radii: {
+                          borderRadiusButton: '0.5rem',
+                          buttonBorderRadius: '0.5rem',
+                          inputBorderRadius: '0.5rem',
+                        },
+                      }
                     },
-                    radii: {
-                      borderRadiusButton: '0.5rem',
-                      buttonBorderRadius: '0.5rem',
-                      inputBorderRadius: '0.5rem',
-                    },
-                  }
-                },
-                className: {
-                  button: 'bg-primary hover:bg-primary/90 text-primary-foreground',
-                  input: 'border-input bg-background',
-                  label: 'text-foreground',
-                }
-              }}
-              theme="light"
-              providers={[]}
-              redirectTo={redirectTo}
-            />
+                    className: {
+                      button: 'bg-primary hover:bg-primary/90 text-primary-foreground',
+                      input: 'border-input bg-background',
+                      label: 'text-foreground',
+                    }
+                  }}
+                  theme="light"
+                  providers={[]}
+                  redirectTo={`${window.location.origin}/auth`}
+                  view="sign_in"
+                />
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleSignUp)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="Enter your email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="Create a password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your full name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="practiceName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Practice Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your practice name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="specialty"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Specialty</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your specialty" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="phoneNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your phone number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button type="submit" className="w-full">
+                      Create Account
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
