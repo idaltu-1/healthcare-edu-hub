@@ -13,6 +13,8 @@ import Leadership from "./pages/Leadership";
 import Business from "./pages/Business";
 import Practice from "./pages/Practice";
 import Finance from "./pages/Finance";
+import Forum from "./pages/Forum";
+import TopicDetail from "./pages/TopicDetail";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/business" element={<Business />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/finance" element={<Finance />} />
+            <Route path="/forum" element={<Forum />} />
+            <Route path="/forum/topic/:topicId" element={<TopicDetail />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
