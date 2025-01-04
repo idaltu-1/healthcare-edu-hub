@@ -37,22 +37,41 @@ const Courses = () => {
     }
 
     try {
-      const { error } = await supabase
+      // Check if already enrolled
+      const { data: enrollment, error: enrollmentError } = await supabase
         .from("course_enrollments")
-        .insert([{ course_id: courseId, user_id: session.user.id }]);
+        .select("*")
+        .eq("course_id", courseId)
+        .eq("user_id", session.user.id)
+        .single();
 
-      if (error) {
-        if (error.code === "23505") {
-          toast.error("You are already enrolled in this course");
-        } else {
-          console.error("Error enrolling in course:", error);
-          toast.error("Failed to enroll in course");
-        }
+      if (enrollmentError && enrollmentError.code !== "PGRST116") {
+        console.error("Error checking enrollment:", enrollmentError);
+        toast.error("Error checking enrollment status");
         return;
       }
 
-      toast.success("Successfully enrolled in course!");
-      navigate(`/courses/${courseId}`);
+      if (enrollment) {
+        toast.error("You are already enrolled in this course");
+        return;
+      }
+
+      // Create checkout session
+      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke(
+        "create-checkout",
+        {
+          body: { courseId },
+        }
+      );
+
+      if (checkoutError) {
+        console.error("Error creating checkout session:", checkoutError);
+        toast.error("Failed to create checkout session");
+        return;
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = checkoutData.url;
     } catch (error) {
       console.error("Error enrolling in course:", error);
       toast.error("Failed to enroll in course");
