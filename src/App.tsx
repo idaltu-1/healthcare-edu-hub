@@ -15,6 +15,7 @@ import Practice from "./pages/Practice";
 import Finance from "./pages/Finance";
 import Forum from "./pages/Forum";
 import TopicDetail from "./pages/TopicDetail";
+import Courses from "./pages/Courses";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/finance" element={<Finance />} />
             <Route path="/forum" element={<Forum />} />
             <Route path="/forum/topic/:topicId" element={<TopicDetail />} />
+            <Route path="/courses" element={<Courses />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
