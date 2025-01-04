@@ -9,6 +9,39 @@ export const SignInForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check URL hash for password reset token
+    const checkPasswordReset = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get('type');
+      
+      if (type === 'recovery') {
+        console.log('Password recovery flow detected');
+        const newPassword = prompt('Please enter your new password:');
+        if (newPassword) {
+          try {
+            const { error } = await supabase.auth.updateUser({ 
+              password: newPassword 
+            });
+            
+            if (error) {
+              console.error('Error updating password:', error);
+              toast.error('Error updating password: ' + error.message);
+            } else {
+              toast.success('Password updated successfully! Please sign in with your new password.');
+              // Clear the hash
+              window.location.hash = '';
+              navigate('/auth');
+            }
+          } catch (updateError) {
+            console.error('Error in password update:', updateError);
+            toast.error('Failed to update password. Please try again.');
+          }
+        }
+      }
+    };
+
+    checkPasswordReset();
+
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
@@ -17,27 +50,6 @@ export const SignInForm = () => {
         if (event === 'SIGNED_IN' && session) {
           console.log("User signed in, redirecting to home");
           navigate('/');
-        } else if (event === 'PASSWORD_RECOVERY') {
-          console.log("Password recovery event received");
-          const newPassword = prompt('What would you like your new password to be?');
-          if (newPassword) {
-            try {
-              const { error } = await supabase.auth.updateUser({ 
-                password: newPassword 
-              });
-              
-              if (error) {
-                console.error('Error updating password:', error);
-                toast.error('Error updating password: ' + error.message);
-              } else {
-                toast.success('Password updated successfully!');
-                navigate('/');
-              }
-            } catch (updateError) {
-              console.error('Error in password update:', updateError);
-              toast.error('Failed to update password. Please try again.');
-            }
-          }
         }
       } catch (error) {
         console.error('Error handling auth state change:', error);
