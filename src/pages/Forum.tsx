@@ -66,7 +66,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles:user_id (
+          profiles (
             username,
             full_name
           ),
@@ -129,7 +129,7 @@ const Forum = () => {
       console.log("Topic created successfully:", data);
       toast.success("Topic created successfully");
       setIsNewTopicOpen(false);
-      await fetchTopics(); // Refresh the topics list
+      await fetchTopics();
     } catch (error) {
       console.error("Error creating topic:", error);
       toast.error("Failed to create topic");
