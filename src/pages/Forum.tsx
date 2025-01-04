@@ -17,11 +17,10 @@ interface TopicWithUser {
   created_at: string;
   user_id: string;
   category_id: string;
-  profiles: {
+  profiles?: {
     username: string | null;
     full_name: string | null;
-  } | null;
-  forum_replies: { count: number }[];
+  };
   reply_count: number;
 }
 
@@ -66,7 +65,9 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles (username, full_name),
+          user:user_id (
+            profiles (username, full_name)
+          ),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
@@ -83,12 +84,15 @@ const Forum = () => {
       }
 
       console.log("Topics fetched:", data);
-      const topicsWithReplyCount = data.map(topic => ({
+      
+      // Transform the data to match our expected format
+      const transformedTopics = data.map(topic => ({
         ...topic,
+        profiles: topic.user?.profiles?.[0] || null,
         reply_count: topic.forum_replies?.[0]?.count || 0
       }));
 
-      setTopics(topicsWithReplyCount);
+      setTopics(transformedTopics);
     } catch (error) {
       console.error("Error in fetchTopics:", error);
       toast.error("Failed to load forum topics");
