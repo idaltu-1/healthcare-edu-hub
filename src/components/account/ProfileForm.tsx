@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -17,20 +18,38 @@ const formSchema = z.object({
 });
 
 const ProfileForm = ({ user }: { user: User | undefined }) => {
+  console.log("Current user data:", user);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: user?.user_metadata?.full_name || "",
-      email: user?.email || "",
-      phoneNumber: user?.user_metadata?.phone_number || "",
-      practiceName: user?.user_metadata?.practice_name || "",
-      specialty: user?.user_metadata?.specialty || "",
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      practiceName: "",
+      specialty: "",
     },
   });
 
+  // Load initial user data
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        fullName: user.user_metadata?.full_name || "",
+        email: user?.email || "",
+        phoneNumber: user.user_metadata?.phone_number || "",
+        practiceName: user.user_metadata?.practice_name || "",
+        specialty: user.user_metadata?.specialty || "",
+      });
+    }
+  }, [user, form]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { error } = await supabase.auth.updateUser({
+      console.log("Submitting form with values:", values);
+
+      // Update user metadata and email
+      const { error: updateError } = await supabase.auth.updateUser({
         email: values.email,
         data: {
           full_name: values.fullName,
@@ -40,8 +59,23 @@ const ProfileForm = ({ user }: { user: User | undefined }) => {
         },
       });
 
-      if (error) throw error;
+      if (updateError) throw updateError;
+
+      // Also update the profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: values.fullName,
+          phone_number: values.phoneNumber,
+          practice_name: values.practiceName,
+          specialty: values.specialty,
+        })
+        .eq('id', user?.id);
+
+      if (profileError) throw profileError;
+
       toast.success("Profile updated successfully");
+      console.log("Profile updated successfully");
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast.error(error.message || "Failed to update profile");
