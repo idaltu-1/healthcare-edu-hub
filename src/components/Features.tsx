@@ -1,26 +1,25 @@
 import { BookOpen, Users, Trophy, Target, ChartBar, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 const features = [
   {
     name: "Business Foundations",
     description: "Master essential business concepts tailored for healthcare professionals.",
     icon: BookOpen,
-    path: null,
+    path: "/business",
   },
   {
     name: "Practice Management",
     description: "Learn effective strategies to optimize and grow your healthcare practice.",
     icon: Target,
-    path: null,
+    path: "/practice",
   },
   {
     name: "Financial Strategy",
     description: "Develop strong financial acumen for sustainable business growth.",
     icon: ChartBar,
-    path: null,
+    path: "/finance",
   },
   {
     name: "Leadership Development",
@@ -45,12 +44,8 @@ const features = [
 const Features = () => {
   const navigate = useNavigate();
 
-  const handleCardClick = (path: string | null) => {
-    if (path) {
-      navigate(path);
-    } else {
-      toast.info("This feature is coming soon!");
-    }
+  const handleCardClick = (path: string) => {
+    navigate(path);
   };
 
   return (
