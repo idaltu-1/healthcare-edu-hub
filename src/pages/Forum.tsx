@@ -8,6 +8,7 @@ import ForumHeader from "@/components/forum/ForumHeader";
 import CategoryFilter from "@/components/forum/CategoryFilter";
 import TopicList from "@/components/forum/TopicList";
 import NewTopicDialog from "@/components/forum/NewTopicDialog";
+import CategoryManagement from "@/components/forum/CategoryManagement";
 
 const Forum = () => {
   const session = useSession();
@@ -50,7 +51,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles (username, full_name),
+          profiles!forum_topics_user_id_fkey (username, full_name),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
@@ -124,7 +125,10 @@ const Forum = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <ForumHeader onNewTopic={() => setIsNewTopicOpen(true)} />
+        <div className="flex justify-between items-center mb-8">
+          <ForumHeader onNewTopic={() => setIsNewTopicOpen(true)} />
+          <CategoryManagement onCategoryCreated={fetchCategories} />
+        </div>
         <CategoryFilter
           categories={categories}
           selectedCategory={selectedCategory}
