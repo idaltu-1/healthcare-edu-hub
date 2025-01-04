@@ -78,7 +78,16 @@ const AuthPage = () => {
           }}
           theme="light"
           providers={[]}
-          redirectTo={window.location.origin}
+          view="sign_in"
+          showLinks={true}
+          localization={{
+            variables: {
+              sign_in: {
+                email_label: 'Email',
+                password_label: 'Password',
+              }
+            }
+          }}
         />
       </div>
     </div>
