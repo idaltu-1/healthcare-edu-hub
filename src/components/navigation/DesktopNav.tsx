@@ -23,55 +23,52 @@ const DesktopNav = ({
   return (
     <div className="hidden md:flex md:items-center md:space-x-4">
       {menuItems.map((item) => {
-        // Only show items that don't require auth, or if user is authenticated
-        if (!item.requiresAuth || session) {
-          return (
-            <button
-              key={item.label}
-              onClick={() => handleNavigation(item.path)}
-              className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1"
-            >
-              <item.icon size={18} />
-              {item.label}
-            </button>
-          );
-        }
-        return null;
+        if (item.requiresAuth && !session) return null;
+        return (
+          <Button
+            key={item.path}
+            variant="ghost"
+            onClick={() => handleNavigation(item.path)}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            {item.label}
+          </Button>
+        );
       })}
       {session ? (
-        <div className="flex items-center space-x-2">
-          <Button 
-            variant="default"
-            className="bg-secondary text-primary hover:bg-secondary/90"
-            onClick={() => handleNavigation("/settings")}
+        <>
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation("/my-account")}
+            className="text-gray-600 hover:text-gray-900"
           >
-            <Settings2 size={18} className="mr-2" />
+            <UserCog className="h-5 w-5 mr-2" />
+            Account
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation("/settings")}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            <Settings2 className="h-5 w-5 mr-2" />
             Settings
           </Button>
-          <Button 
-            variant="default"
-            className="bg-secondary text-primary hover:bg-secondary/90"
-            onClick={() => handleNavigation("/my-account")}
-          >
-            <UserCog size={18} className="mr-2" />
-            My Account
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="text-primary-foreground hover:text-secondary"
+          <Button
+            variant="ghost"
             onClick={handleLogout}
+            className="text-gray-600 hover:text-gray-900"
           >
-            <LogOut size={18} className="mr-2" />
+            <LogOut className="h-5 w-5 mr-2" />
             Logout
           </Button>
-        </div>
+        </>
       ) : (
-        <Button 
-          variant="default" 
-          className="bg-secondary text-primary hover:bg-secondary/90"
+        <Button
+          variant="ghost"
           onClick={handleAuth}
+          className="text-gray-600 hover:text-gray-900"
         >
-          <LogIn size={18} className="mr-2" />
+          <LogIn className="h-5 w-5 mr-2" />
           Login
         </Button>
       )}

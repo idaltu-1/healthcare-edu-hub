@@ -17,7 +17,7 @@ const Navbar = () => {
     try {
       await supabase.auth.signOut();
       toast.success("Logged out successfully");
-      navigate("/auth");
+      navigate("/");
     } catch (error) {
       console.error("Error logging out:", error);
       toast.error("Error logging out");
@@ -29,14 +29,13 @@ const Navbar = () => {
   };
 
   const handleNavigation = (path: string) => {
-    console.log("Navigating to:", path); // Debug log
     navigate(path);
   };
 
   return (
-    <nav className="bg-primary/95 backdrop-blur-sm shadow-sm fixed w-full z-50">
+    <nav className="border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex justify-between h-16 items-center">
           <Logo handleNavigation={handleNavigation} />
           <DesktopNav
             menuItems={menuItems}

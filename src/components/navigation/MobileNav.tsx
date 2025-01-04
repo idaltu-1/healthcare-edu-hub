@@ -29,66 +29,59 @@ const MobileNav = ({
     <div className="md:hidden">
       <Sheet>
         <SheetTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-primary-foreground hover:text-secondary"
-          >
+          <Button variant="ghost" size="icon">
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-[300px] bg-primary">
-          <div className="flex flex-col space-y-4 mt-8">
+        <SheetContent side="right" className="w-64">
+          <div className="flex flex-col space-y-4 mt-4">
             {menuItems.map((item) => {
-              // Only show items that don't require auth, or if user is authenticated
-              if (!item.requiresAuth || session) {
-                return (
-                  <button
-                    key={item.label}
-                    onClick={() => handleNavigation(item.path)}
-                    className="flex items-center space-x-2 text-primary-foreground hover:text-secondary transition-colors px-4 py-2"
-                  >
-                    <item.icon size={18} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              }
-              return null;
+              if (item.requiresAuth && !session) return null;
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  onClick={() => handleNavigation(item.path)}
+                  className="justify-start"
+                >
+                  {item.label}
+                </Button>
+              );
             })}
             {session ? (
               <>
-                <Button 
-                  variant="default"
-                  className="bg-secondary text-primary hover:bg-secondary/90 w-full justify-start"
-                  onClick={() => handleNavigation("/settings")}
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavigation("/my-account")}
+                  className="justify-start"
                 >
-                  <Settings2 size={18} className="mr-2" />
+                  <UserCog className="h-5 w-5 mr-2" />
+                  Account
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavigation("/settings")}
+                  className="justify-start"
+                >
+                  <Settings2 className="h-5 w-5 mr-2" />
                   Settings
                 </Button>
-                <Button 
-                  variant="default"
-                  className="bg-secondary text-primary hover:bg-secondary/90 w-full justify-start"
-                  onClick={() => handleNavigation("/my-account")}
-                >
-                  <UserCog size={18} className="mr-2" />
-                  My Account
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  className="text-primary-foreground hover:text-secondary w-full justify-start"
+                <Button
+                  variant="ghost"
                   onClick={handleLogout}
+                  className="justify-start"
                 >
-                  <LogOut size={18} className="mr-2" />
+                  <LogOut className="h-5 w-5 mr-2" />
                   Logout
                 </Button>
               </>
             ) : (
-              <Button 
-                variant="default" 
-                className="bg-secondary text-primary hover:bg-secondary/90 w-full"
+              <Button
+                variant="ghost"
                 onClick={handleAuth}
+                className="justify-start"
               >
-                <LogIn size={18} className="mr-2" />
+                <LogIn className="h-5 w-5 mr-2" />
                 Login
               </Button>
             )}
