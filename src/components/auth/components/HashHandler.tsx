@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { handleSessionUpdate } from "../utils/handlers/tokenHandler";
+import { handlePasswordReset } from "../utils/handlers/passwordHandler";
 
 export const HashHandler = () => {
   const navigate = useNavigate();
@@ -55,6 +57,15 @@ export const HashHandler = () => {
             return;
           }
 
+          // Set the session first
+          const sessionError = await handleSessionUpdate(accessToken, refreshToken, navigate);
+          if (sessionError) {
+            console.error('Error setting session:', sessionError);
+            toast.error('Failed to process recovery link');
+            navigate('/auth');
+            return;
+          }
+
           // For recovery flow, immediately prompt for new password
           const newPassword = prompt('Please enter your new password:');
           if (!newPassword) {
@@ -63,50 +74,29 @@ export const HashHandler = () => {
             return;
           }
 
-          try {
-            // Update the session temporarily to allow password change
-            const { data: { session }, error: sessionError } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken
-            });
-
-            if (sessionError) throw sessionError;
-
-            if (!session) {
-              throw new Error('Failed to establish session');
-            }
-
-            // Update password using the recovery token
-            const { error: updateError } = await supabase.auth.updateUser({
-              password: newPassword
-            });
-
-            if (updateError) throw updateError;
-
-            toast.success('Password has been reset successfully');
-            // After password reset, redirect to home
-            navigate('/');
-          } catch (error: any) {
-            console.error('Error during password reset:', error);
-            toast.error(error.message || 'Failed to process password reset');
+          const passwordError = await handlePasswordReset(newPassword, navigate);
+          if (passwordError) {
+            console.error('Error resetting password:', passwordError);
+            toast.error('Failed to reset password');
             navigate('/auth');
+            return;
           }
+
+          toast.success('Password has been reset successfully');
+          navigate('/');
         } else if (accessToken && refreshToken) {
           // Handle normal authentication flow
-          try {
-            const { error: sessionError } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken
-            });
-
-            if (sessionError) throw sessionError;
-            
-            navigate('/');
-          } catch (error: any) {
-            console.error('Error setting session:', error);
+          console.log('Processing normal authentication flow');
+          const sessionError = await handleSessionUpdate(accessToken, refreshToken, navigate);
+          
+          if (sessionError) {
+            console.error('Error setting session:', sessionError);
             toast.error('Failed to authenticate');
             navigate('/auth');
+            return;
           }
+
+          navigate('/');
         }
 
         // Clear the hash after processing

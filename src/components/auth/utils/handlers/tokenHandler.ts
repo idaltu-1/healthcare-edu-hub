@@ -9,8 +9,8 @@ export const handleSessionUpdate = async (
   navigate: NavigateFunction
 ): Promise<AuthError | null> => {
   try {
-    console.log('Attempting to set session');
-    const { error } = await supabase.auth.setSession({
+    console.log('Attempting to set session with tokens');
+    const { data: { session }, error } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
     });
@@ -19,6 +19,11 @@ export const handleSessionUpdate = async (
       console.error('Error setting session:', error);
       toast.error('Error setting session: ' + error.message);
       return error;
+    }
+    
+    if (!session) {
+      console.error('No session returned after setting tokens');
+      return new Error('No session returned') as AuthError;
     }
     
     console.log('Session set successfully');
