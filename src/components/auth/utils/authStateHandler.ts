@@ -70,8 +70,6 @@ export const handleSessionUpdate = async (
     }
     
     console.log('Session set successfully');
-    window.location.hash = '';
-    navigate('/');
     return null;
   } catch (error) {
     console.error('Error handling session:', error);

@@ -23,7 +23,13 @@ export const HashHandler = () => {
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
       
-      console.log('Hash params:', { error, errorDescription, type, hasAccessToken: !!accessToken });
+      console.log('Hash params:', { 
+        error, 
+        errorDescription, 
+        type, 
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken 
+      });
       
       if (error) {
         console.error('Auth error:', error, errorDescription);
@@ -32,8 +38,9 @@ export const HashHandler = () => {
         return;
       }
       
-      if (type === 'recovery') {
-        console.log('Password recovery flow detected');
+      if (type === 'recovery' && accessToken && refreshToken) {
+        console.log('Password recovery flow detected with tokens');
+        await handleSessionUpdate(accessToken, refreshToken, navigate);
         const newPassword = prompt('Please enter your new password:');
         if (newPassword) {
           await handlePasswordReset(newPassword, navigate);
