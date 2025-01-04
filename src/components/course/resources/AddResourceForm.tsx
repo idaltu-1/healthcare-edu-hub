@@ -53,6 +53,7 @@ const AddResourceForm: React.FC<AddResourceFormProps> = ({ courseId, onResourceA
       let resourceUrl = linkUrl;
 
       if (resourceType === "pdf" && file) {
+        console.log("Uploading PDF file:", file.name);
         const fileExt = file.name.split(".").pop();
         const fileName = `${crypto.randomUUID()}.${fileExt}`;
 
@@ -60,14 +61,27 @@ const AddResourceForm: React.FC<AddResourceFormProps> = ({ courseId, onResourceA
           .from("course_materials")
           .upload(fileName, file);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          throw uploadError;
+        }
+
+        console.log("File uploaded successfully:", data);
 
         const { data: { publicUrl } } = supabase.storage
           .from("course_materials")
           .getPublicUrl(fileName);
 
+        console.log("Generated public URL:", publicUrl);
         resourceUrl = publicUrl;
       }
+
+      console.log("Inserting resource into database:", {
+        courseId,
+        title,
+        resourceType,
+        resourceUrl
+      });
 
       const { error } = await supabase.from("course_resources").insert({
         course_id: courseId,
@@ -77,7 +91,10 @@ const AddResourceForm: React.FC<AddResourceFormProps> = ({ courseId, onResourceA
         resource_url: resourceUrl,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database insert error:", error);
+        throw error;
+      }
 
       toast.success("Resource added successfully");
       setTitle("");

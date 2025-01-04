@@ -31,13 +31,19 @@ const CourseResourceManager = ({ courseId }: CourseResourceManagerProps) => {
 
   const fetchResources = async () => {
     try {
+      console.log("Fetching resources for course:", courseId);
       const { data, error } = await supabase
         .from("course_resources")
         .select("*")
         .eq("course_id", courseId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching resources:", error);
+        throw error;
+      }
+
+      console.log("Fetched resources:", data);
 
       // Type assertion to ensure resource_type is correct
       const typedResources = data.map(resource => ({
@@ -55,6 +61,7 @@ const CourseResourceManager = ({ courseId }: CourseResourceManagerProps) => {
   };
 
   const handleResourceAdded = () => {
+    console.log("Resource added, refreshing list");
     fetchResources();
   };
 
