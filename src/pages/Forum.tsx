@@ -17,10 +17,10 @@ interface TopicWithUser {
   created_at: string;
   user_id: string;
   category_id: string;
-  profiles?: {
-    full_name: string | null;
+  profiles: {
     username: string | null;
-  };
+    full_name: string | null;
+  } | null;
   forum_replies: { count: number }[];
   reply_count: number;
 }
@@ -66,7 +66,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles!forum_topics_user_id_fkey (username, full_name),
+          profiles (username, full_name),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
@@ -85,11 +85,7 @@ const Forum = () => {
       console.log("Topics fetched:", data);
       const topicsWithReplyCount = data.map(topic => ({
         ...topic,
-        reply_count: topic.forum_replies?.[0]?.count || 0,
-        user: {
-          full_name: topic.profiles?.full_name,
-          username: topic.profiles?.username
-        }
+        reply_count: topic.forum_replies?.[0]?.count || 0
       }));
 
       setTopics(topicsWithReplyCount);
