@@ -49,9 +49,18 @@ const AuthPage = () => {
         }
       }
 
-      // Handle email confirmation errors
-      if (event === 'USER_UPDATED' || event === 'SIGNED_UP') {
-        console.log('User updated or signed up');
+      // Handle email confirmation and user updates
+      if (event === 'USER_UPDATED') {
+        console.log('User updated');
+        toast({
+          title: "Success",
+          description: "Please check your email for confirmation link"
+        });
+      }
+
+      // Handle initial signup
+      if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at === null) {
+        console.log('New user signed up');
         toast({
           title: "Success",
           description: "Please check your email for confirmation link"
