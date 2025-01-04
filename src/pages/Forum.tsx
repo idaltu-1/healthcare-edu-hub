@@ -10,6 +10,11 @@ import TopicList from "@/components/forum/TopicList";
 import NewTopicDialog from "@/components/forum/NewTopicDialog";
 import CategoryManagement from "@/components/forum/CategoryManagement";
 
+interface Profile {
+  username: string | null;
+  full_name: string | null;
+}
+
 interface Topic {
   id: string;
   title: string;
@@ -18,10 +23,7 @@ interface Topic {
   user_id: string;
   category_id: string;
   updated_at: string;
-  profiles: {
-    username: string | null;
-    full_name: string | null;
-  };
+  profiles: Profile;
   reply_count: number;
 }
 
@@ -66,7 +68,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles (
+          profiles:profiles (
             username,
             full_name
           ),
@@ -90,8 +92,8 @@ const Forum = () => {
       const transformedTopics = data.map(topic => ({
         ...topic,
         profiles: {
-          username: topic.profiles?.[0]?.username || null,
-          full_name: topic.profiles?.[0]?.full_name || null
+          username: topic.profiles?.[0]?.username ?? "Unknown",
+          full_name: topic.profiles?.[0]?.full_name ?? "Unknown"
         },
         reply_count: topic.forum_replies?.[0]?.count || 0
       }));
