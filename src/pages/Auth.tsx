@@ -1,41 +1,34 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import SignInForm from "@/components/auth/SignInForm";
-import RegistrationForm from "@/components/auth/RegistrationForm";
+import { SignInForm } from "@/components/auth/SignInForm";
+import { RegistrationForm } from "@/components/auth/RegistrationForm";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Auth = () => {
-  const [isSignIn, setIsSignIn] = useState(true);
   const navigate = useNavigate();
 
-  const handleSignInSuccess = () => {
-    toast.success("Signed in successfully!");
+  const handleSuccess = () => {
+    toast.success("Authentication successful");
     navigate("/");
   };
 
-  const handleRegistrationSuccess = () => {
-    toast.success("Registration successful! Please sign in.");
-    setIsSignIn(true);
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="max-w-md w-full">
-        <h1 className="text-2xl font-bold text-center mb-6">
-          {isSignIn ? "Sign In" : "Register"}
-        </h1>
-        {isSignIn ? (
-          <SignInForm onSuccess={handleSignInSuccess} />
-        ) : (
-          <RegistrationForm onSuccess={handleRegistrationSuccess} />
-        )}
-        <button
-          className="mt-4 text-primary hover:underline"
-          onClick={() => setIsSignIn(!isSignIn)}
-        >
-          {isSignIn ? "Need an account? Register" : "Already have an account? Sign In"}
-        </button>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md p-6">
+        <Tabs defaultValue="signin">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
+          </TabsList>
+          <TabsContent value="signin">
+            <SignInForm onSuccess={handleSuccess} />
+          </TabsContent>
+          <TabsContent value="register">
+            <RegistrationForm onSuccess={handleSuccess} />
+          </TabsContent>
+        </Tabs>
+      </Card>
     </div>
   );
 };
