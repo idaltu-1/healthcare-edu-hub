@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Users, BookOpen, Rss, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
@@ -21,10 +21,24 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
+          <div className="hidden md:flex md:items-center md:space-x-6">
             <a href="#courses" className="text-primary-foreground hover:text-secondary transition-colors">Courses</a>
-            <a href="#resources" className="text-primary-foreground hover:text-secondary transition-colors">Resources</a>
-            <a href="#about" className="text-primary-foreground hover:text-secondary transition-colors">About</a>
+            <a href="#community" className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1">
+              <Users size={18} />
+              Community
+            </a>
+            <a href="#blog" className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1">
+              <BookOpen size={18} />
+              Blog
+            </a>
+            <a href="#newsletter" className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1">
+              <Rss size={18} />
+              Newsletter
+            </a>
+            <a href="#forum" className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1">
+              <MessageSquare size={18} />
+              Forum
+            </a>
             <Button variant="default" className="bg-secondary text-primary hover:bg-secondary/90">Get Started</Button>
           </div>
 
@@ -45,8 +59,22 @@ const Navbar = () => {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-primary">
             <a href="#courses" className="block px-3 py-2 text-primary-foreground hover:text-secondary">Courses</a>
-            <a href="#resources" className="block px-3 py-2 text-primary-foreground hover:text-secondary">Resources</a>
-            <a href="#about" className="block px-3 py-2 text-primary-foreground hover:text-secondary">About</a>
+            <a href="#community" className="block px-3 py-2 text-primary-foreground hover:text-secondary flex items-center gap-2">
+              <Users size={18} />
+              Community
+            </a>
+            <a href="#blog" className="block px-3 py-2 text-primary-foreground hover:text-secondary flex items-center gap-2">
+              <BookOpen size={18} />
+              Blog
+            </a>
+            <a href="#newsletter" className="block px-3 py-2 text-primary-foreground hover:text-secondary flex items-center gap-2">
+              <Rss size={18} />
+              Newsletter
+            </a>
+            <a href="#forum" className="block px-3 py-2 text-primary-foreground hover:text-secondary flex items-center gap-2">
+              <MessageSquare size={18} />
+              Forum
+            </a>
             <Button variant="default" className="w-full mt-2 bg-secondary text-primary hover:bg-secondary/90">Get Started</Button>
           </div>
         </div>
