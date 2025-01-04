@@ -18,10 +18,10 @@ interface TopicWithUser {
   user_id: string;
   category_id: string;
   updated_at: string;
-  profiles: {
+  profiles?: {
     username: string | null;
     full_name: string | null;
-  };
+  } | null;
   reply_count: number;
 }
 
@@ -66,7 +66,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles!inner (
+          profiles:user_id (
             username,
             full_name
           ),
@@ -87,11 +87,10 @@ const Forum = () => {
 
       console.log("Topics fetched:", data);
       
-      // Transform the data to match our expected format
       const transformedTopics = data.map(topic => ({
         ...topic,
         reply_count: topic.forum_replies?.[0]?.count || 0
-      })) as TopicWithUser[];
+      }));
 
       setTopics(transformedTopics);
     } catch (error) {

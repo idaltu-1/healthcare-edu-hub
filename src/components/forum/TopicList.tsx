@@ -11,7 +11,7 @@ interface Topic {
   profiles?: {
     full_name: string | null;
     username: string | null;
-  };
+  } | null;
   reply_count: number;
 }
 
