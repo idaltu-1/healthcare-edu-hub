@@ -235,6 +235,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          membership_tier: Database["public"]["Enums"]["membership_tier"]
           updated_at: string
           username: string | null
         }
@@ -242,6 +243,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id: string
+          membership_tier?: Database["public"]["Enums"]["membership_tier"]
           updated_at?: string
           username?: string | null
         }
@@ -249,6 +251,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          membership_tier?: Database["public"]["Enums"]["membership_tier"]
           updated_at?: string
           username?: string | null
         }
@@ -262,7 +265,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      membership_tier: "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
