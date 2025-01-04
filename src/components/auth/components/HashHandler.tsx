@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { handlePasswordReset, handleSessionUpdate } from "../utils/authStateHandler";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 

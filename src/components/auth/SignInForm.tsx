@@ -34,8 +34,9 @@ export const SignInForm = () => {
     };
   }, [navigate]);
 
-  // Use window.location.origin to get the current domain
+  // Get the current domain and construct the redirect URL
   const siteUrl = window.location.origin;
+  // Ensure we're using the correct path for auth redirects
   const redirectTo = `${siteUrl}/auth`;
   
   console.log('Auth redirect URL:', redirectTo);
