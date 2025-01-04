@@ -1,22 +1,25 @@
-import { CourseResource } from "@/types/course";
+import { Resource } from "@/components/CourseResourceManager";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Link as LinkIcon, Video } from "lucide-react";
+import { FileText, Link as LinkIcon } from "lucide-react";
 
 interface ResourceListProps {
-  resources: CourseResource[];
+  resources: Resource[];
+  loading: boolean;
 }
 
-const ResourceList = ({ resources }: ResourceListProps) => {
+const ResourceList = ({ resources, loading }: ResourceListProps) => {
   const getResourceIcon = (type: string) => {
     switch (type.toLowerCase()) {
-      case "video":
-        return <Video className="h-5 w-5" />;
-      case "document":
+      case "pdf":
         return <FileText className="h-5 w-5" />;
       default:
         return <LinkIcon className="h-5 w-5" />;
     }
   };
+
+  if (loading) {
+    return <div>Loading resources...</div>;
+  }
 
   return (
     <div className="space-y-4">

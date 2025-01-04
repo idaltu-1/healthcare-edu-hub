@@ -2,7 +2,11 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 
-export const SignInForm = () => {
+interface SignInFormProps {
+  onSuccess?: () => void;
+}
+
+export const SignInForm = ({ onSuccess }: SignInFormProps) => {
   return (
     <Auth
       supabaseClient={supabase}
@@ -36,6 +40,7 @@ export const SignInForm = () => {
       providers={[]}
       redirectTo={`${window.location.origin}/auth`}
       view="sign_in"
+      onSuccess={onSuccess}
     />
   );
 };
