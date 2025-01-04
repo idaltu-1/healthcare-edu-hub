@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { handlePasswordReset, handleSessionUpdate } from "../utils/authStateHandler";
 
 export const HashHandler = () => {

@@ -14,6 +14,8 @@ export const handleAuthStateChange = (
     if (event === 'SIGNED_IN' && session) {
       console.log("User signed in, redirecting to home");
       navigate('/');
+    } else if (event === 'PASSWORD_RECOVERY') {
+      console.log("Password recovery event detected");
     }
   } catch (error) {
     console.error('Error handling auth state change:', error);
@@ -26,6 +28,7 @@ export const handlePasswordReset = async (
   navigate: NavigateFunction
 ): Promise<AuthError | null> => {
   try {
+    console.log('Attempting to update password');
     const { error } = await supabase.auth.updateUser({ 
       password: newPassword 
     });
@@ -36,6 +39,7 @@ export const handlePasswordReset = async (
       return error;
     }
     
+    console.log('Password updated successfully');
     toast.success('Password updated successfully! Please sign in with your new password.');
     window.location.hash = '';
     navigate('/auth');
@@ -53,6 +57,7 @@ export const handleSessionUpdate = async (
   navigate: NavigateFunction
 ): Promise<AuthError | null> => {
   try {
+    console.log('Attempting to set session');
     const { error } = await supabase.auth.setSession({
       access_token: accessToken,
       refresh_token: refreshToken,
