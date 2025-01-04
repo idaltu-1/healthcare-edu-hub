@@ -3,7 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -15,7 +15,10 @@ const AuthPage = () => {
       
       if (event === 'PASSWORD_RECOVERY') {
         console.log('Password recovery event detected');
-        toast.info('Please enter your new password');
+        toast({
+          title: "Password Recovery",
+          description: "Please enter your new password"
+        });
       }
 
       if (event === 'SIGNED_IN') {
@@ -29,25 +32,54 @@ const AuthPage = () => {
 
           if (error) {
             console.error('Error fetching profile:', error);
-            toast.error('Error fetching user profile');
+            toast({
+              title: "Error",
+              description: "Error fetching user profile",
+              variant: "destructive"
+            });
             return;
           }
 
           console.log('User profile:', profile);
-          toast.success('Successfully logged in');
+          toast({
+            title: "Success",
+            description: "Successfully logged in"
+          });
           navigate("/");
         }
       }
+
+      // Handle email confirmation errors
+      if (event === 'USER_UPDATED' || event === 'SIGNED_UP') {
+        console.log('User updated or signed up');
+        toast({
+          title: "Success",
+          description: "Please check your email for confirmation link"
+        });
+      }
     });
 
-    // Check for password reset error in URL
+    // Check for auth errors in URL
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const error = hashParams.get('error');
     const errorDescription = hashParams.get('error_description');
     
     if (error) {
       console.error('Auth error:', error, errorDescription);
-      toast.error(errorDescription || 'An error occurred during authentication');
+      // Handle specific error cases
+      if (error === 'access_denied' && errorDescription?.includes('Email link is invalid')) {
+        toast({
+          title: "Error",
+          description: "The email confirmation link has expired or is invalid. Please request a new one.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Authentication Error",
+          description: errorDescription || 'An error occurred during authentication',
+          variant: "destructive"
+        });
+      }
     }
   }, [navigate]);
 
@@ -80,6 +112,7 @@ const AuthPage = () => {
           providers={[]}
           view="sign_in"
           showLinks={true}
+          redirectTo={window.location.origin}
           localization={{
             variables: {
               sign_in: {
