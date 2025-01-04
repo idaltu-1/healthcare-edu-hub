@@ -68,7 +68,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles!forum_topics_user_id_fkey (username, full_name),
+          profiles (username, full_name),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
@@ -90,7 +90,7 @@ const Forum = () => {
         ...topic,
         profiles: topic.profiles || { username: null, full_name: null },
         reply_count: topic.forum_replies?.[0]?.count || 0
-      }));
+      })) as Topic[];
 
       console.log("Transformed topics:", transformedTopics);
       setTopics(transformedTopics);
