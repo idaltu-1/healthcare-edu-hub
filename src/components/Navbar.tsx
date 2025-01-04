@@ -10,8 +10,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <a href="/" className="flex items-center">
-              <span className="text-2xl font-bold text-primary">Doc.MBA</span>
+            <a href="/" className="flex items-center space-x-2">
+              <img 
+                src="/lovable-uploads/dcc3e967-8a59-4c02-a270-21d8663e36b0.png" 
+                alt="Doc.MBA Logo" 
+                className="h-8 w-auto"
+              />
+              <span className="text-2xl font-bold text-primary hidden sm:inline">Doc.MBA</span>
             </a>
           </div>
 
