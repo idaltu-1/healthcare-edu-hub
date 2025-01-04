@@ -31,6 +31,11 @@ const Navbar = () => {
 
   const handleNavigation = (path: string) => {
     console.log("Navigating to:", path); // Debug log
+    if (!session && (path === "/my-account" || path === "/settings")) {
+      toast.error("Please login to access this page");
+      navigate("/auth");
+      return;
+    }
     navigate(path);
   };
 

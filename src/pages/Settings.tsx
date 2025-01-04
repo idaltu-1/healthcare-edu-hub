@@ -1,230 +1,28 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { Settings2 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-const formSchema = z.object({
-  practiceName: z.string().min(2, "Practice name must be at least 2 characters"),
-  specialtyType: z.string().min(2, "Specialty type must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-});
+import { useSession } from "@supabase/auth-helpers-react";
+import Navbar from "@/components/Navbar";
+import SettingsForm from "@/components/settings/SettingsForm";
 
 const Settings = () => {
+  const session = useSession();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
-
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      practiceName: "",
-      specialtyType: "",
-      email: "",
-    },
-  });
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      
-      if (!currentUser) {
-        navigate("/auth");
-        return;
-      }
-      
-      setUser(currentUser);
-      
-      // Fetch both profile and community member data
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
-
-      const { data: communityMember } = await supabase
-        .from("community_members")
-        .select("*")
-        .eq("user_id", currentUser.id)
-        .single();
-
-      if (profile || communityMember) {
-        form.reset({
-          practiceName: profile?.full_name || "",
-          specialtyType: communityMember?.specialty || "",
-          email: currentUser.email || "",
-        });
-      }
-    };
-
-    fetchUserData();
-  }, [navigate, form]);
-
-  const handleUpdateProfile = async (values: z.infer<typeof formSchema>) => {
-    setLoading(true);
-    try {
-      // Update profile data
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          full_name: values.practiceName,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
-
-      if (profileError) throw profileError;
-
-      // Update or insert community member data
-      const { error: communityError } = await supabase
-        .from("community_members")
-        .upsert({
-          user_id: user.id,
-          full_name: values.practiceName,
-          specialty: values.specialtyType,
-        });
-
-      if (communityError) throw communityError;
-
-      // Update email if changed
-      if (values.email !== user.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: values.email,
-        });
-        
-        if (emailError) throw emailError;
-        toast.success("Email update confirmation sent. Please check your inbox.");
-      }
-
-      toast.success("Profile updated successfully");
-    } catch (error: any) {
-      console.error("Error updating profile:", error);
-      toast.error(error.message || "Failed to update profile");
-    } finally {
-      setLoading(false);
+    if (!session) {
+      navigate("/auth");
     }
-  };
+  }, [session, navigate]);
 
-  const handlePasswordReset = async () => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
-      });
-      
-      if (error) throw error;
-      
-      toast.success("Password reset email sent. Please check your inbox.");
-    } catch (error: any) {
-      console.error("Password reset error:", error);
-      toast.error(error.message || "Failed to send password reset email");
-    }
-  };
+  if (!session) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex items-center gap-3 mb-8">
-          <Settings2 className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-primary">Account Settings</h1>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-            <CardDescription>
-              Update your practice and contact information
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleUpdateProfile)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="practiceName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Practice Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter practice name" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="specialtyType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Specialty Type</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Enter specialty type" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" placeholder="Enter email address" />
-                      </FormControl>
-                      <FormDescription>
-                        This will be used for account notifications and password reset
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="flex flex-col gap-4">
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full"
-                  >
-                    {loading ? "Saving..." : "Save Changes"}
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handlePasswordReset}
-                    className="w-full"
-                  >
-                    Reset Password
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="max-w-4xl mx-auto p-6 pt-20">
+        <SettingsForm />
       </div>
     </div>
   );
