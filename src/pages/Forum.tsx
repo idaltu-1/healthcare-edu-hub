@@ -65,9 +65,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          user:user_id (
-            profiles (username, full_name)
-          ),
+          profiles!forum_topics_user_id_fkey (username, full_name),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
@@ -88,7 +86,7 @@ const Forum = () => {
       // Transform the data to match our expected format
       const transformedTopics = data.map(topic => ({
         ...topic,
-        profiles: topic.user?.profiles?.[0] || null,
+        profiles: topic.profiles || null,
         reply_count: topic.forum_replies?.[0]?.count || 0
       }));
 
