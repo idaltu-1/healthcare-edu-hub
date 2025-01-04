@@ -19,6 +19,7 @@ const AuthPage = () => {
       
       if (event === 'PASSWORD_RECOVERY') {
         console.log('Password recovery event detected');
+        // Redirect to settings page for password reset
         navigate("/settings");
         toast({
           title: "Password Reset",
@@ -96,6 +97,18 @@ const AuthPage = () => {
         });
       }
     }
+
+    // Check if we're in a password reset flow from the URL
+    const type = hashParams.get('type');
+    if (type === 'recovery') {
+      console.log('Password reset flow detected from URL');
+      navigate('/settings');
+      toast({
+        title: "Password Reset",
+        description: "Please set your new password",
+        duration: 5000,
+      });
+    }
   }, [navigate]);
 
   const handleBackToHome = () => {
@@ -110,9 +123,7 @@ const AuthPage = () => {
     );
   }
 
-  const redirectTo = process.env.NODE_ENV === 'production' 
-    ? 'https://doc.mba/auth'
-    : `${window.location.origin}/auth`;
+  const redirectTo = `${window.location.origin}/auth`;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
