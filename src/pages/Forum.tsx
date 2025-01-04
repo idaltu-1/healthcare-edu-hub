@@ -17,7 +17,7 @@ interface TopicWithUser {
   created_at: string;
   user_id: string;
   category_id: string;
-  profiles?: {
+  profiles: {
     username: string | null;
     full_name: string | null;
   } | null;
@@ -65,8 +65,8 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles:user_id(username, full_name),
-          forum_replies(count)
+          profiles (username, full_name),
+          forum_replies (count)
         `)
         .order("created_at", { ascending: false });
 
@@ -86,7 +86,6 @@ const Forum = () => {
       // Transform the data to match our expected format
       const transformedTopics = data.map(topic => ({
         ...topic,
-        profiles: topic.profiles || null,
         reply_count: topic.forum_replies?.[0]?.count || 0
       }));
 
