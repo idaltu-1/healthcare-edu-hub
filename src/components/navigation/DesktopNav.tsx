@@ -19,16 +19,22 @@ const DesktopNav = ({
 }: DesktopNavProps) => {
   return (
     <div className="hidden md:flex md:items-center md:space-x-4">
-      {menuItems.map((item) => (
-        <button
-          key={item.label}
-          onClick={() => handleNavigation(item.path)}
-          className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1"
-        >
-          <item.icon size={18} />
-          {item.label}
-        </button>
-      ))}
+      {menuItems.map((item) => {
+        // Only show items that don't require auth, or if user is authenticated
+        if (!item.requiresAuth || session) {
+          return (
+            <button
+              key={item.label}
+              onClick={() => handleNavigation(item.path)}
+              className="text-primary-foreground hover:text-secondary transition-colors flex items-center gap-1"
+            >
+              <item.icon size={18} />
+              {item.label}
+            </button>
+          );
+        }
+        return null;
+      })}
       {session ? (
         <div className="flex items-center space-x-2">
           <Button 

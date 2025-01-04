@@ -1,4 +1,4 @@
-import { Home, BookOpen, Users, MessageSquare, UserCog } from "lucide-react";
+import { Home, BookOpen, Users, MessageSquare } from "lucide-react";
 
 export interface MenuItem {
   label: string;
@@ -27,11 +27,5 @@ export const menuItems: MenuItem[] = [
     label: "Forum",
     path: "/forum",
     icon: MessageSquare,
-  },
-  {
-    label: "My Account",
-    path: "/settings",
-    icon: UserCog,
-    requiresAuth: true,
   },
 ];

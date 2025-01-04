@@ -36,16 +36,22 @@ const MobileNav = ({
         </SheetTrigger>
         <SheetContent side="right" className="w-[300px] bg-primary">
           <div className="flex flex-col space-y-4 mt-8">
-            {menuItems.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => handleNavigation(item.path)}
-                className="flex items-center space-x-2 text-primary-foreground hover:text-secondary transition-colors px-4 py-2"
-              >
-                <item.icon size={18} />
-                <span>{item.label}</span>
-              </button>
-            ))}
+            {menuItems.map((item) => {
+              // Only show items that don't require auth, or if user is authenticated
+              if (!item.requiresAuth || session) {
+                return (
+                  <button
+                    key={item.label}
+                    onClick={() => handleNavigation(item.path)}
+                    className="flex items-center space-x-2 text-primary-foreground hover:text-secondary transition-colors px-4 py-2"
+                  >
+                    <item.icon size={18} />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              }
+              return null;
+            })}
             {session ? (
               <>
                 <Button 
