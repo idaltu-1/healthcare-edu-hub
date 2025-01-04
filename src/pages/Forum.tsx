@@ -10,11 +10,23 @@ import TopicList from "@/components/forum/TopicList";
 import NewTopicDialog from "@/components/forum/NewTopicDialog";
 import CategoryManagement from "@/components/forum/CategoryManagement";
 
+interface TopicWithUser {
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  user: {
+    full_name: string | null;
+    username: string | null;
+  } | null;
+  forum_replies: { count: number }[];
+}
+
 const Forum = () => {
   const session = useSession();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [topics, setTopics] = useState([]);
+  const [topics, setTopics] = useState<TopicWithUser[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
 
