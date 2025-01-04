@@ -5,13 +5,41 @@ import { useNavigate } from "react-router-dom";
 import { HashHandler } from "./components/HashHandler";
 import { authAppearance } from "./components/AuthAppearance";
 import { handleAuthStateChange } from "./utils/authStateHandler";
+import { toast } from "sonner";
 
 export const SignInForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if user is already authenticated
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log("User already authenticated, redirecting to home");
+        navigate('/');
+      }
+    };
+    
+    checkAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => handleAuthStateChange(event, session, navigate)
+      async (event, session) => {
+        console.log("Auth state changed:", event, session);
+        
+        if (event === 'SIGNED_IN' && session) {
+          console.log("User signed in successfully");
+          toast.success("Successfully signed in!");
+          navigate('/');
+        } else if (event === 'SIGNED_OUT') {
+          console.log("User signed out");
+        } else if (event === 'USER_UPDATED') {
+          console.log("User updated");
+        } else if (event === 'USER_DELETED') {
+          console.log("User deleted");
+        } else if (event === 'PASSWORD_RECOVERY') {
+          console.log("Password recovery initiated");
+        }
+      }
     );
 
     return () => {
@@ -35,6 +63,26 @@ export const SignInForm = () => {
         providers={[]}
         redirectTo={redirectTo}
         onlyThirdPartyProviders={false}
+        localization={{
+          variables: {
+            sign_in: {
+              email_label: 'Email',
+              password_label: 'Password',
+              button_label: 'Sign in',
+              loading_button_label: 'Signing in...',
+              social_provider_text: 'Sign in with {{provider}}',
+              link_text: "Already have an account? Sign in",
+            },
+            sign_up: {
+              email_label: 'Email',
+              password_label: 'Password',
+              button_label: 'Sign up',
+              loading_button_label: 'Signing up...',
+              social_provider_text: 'Sign up with {{provider}}',
+              link_text: "Don't have an account? Sign up",
+            },
+          },
+        }}
       />
     </>
   );
