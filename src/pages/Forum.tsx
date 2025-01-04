@@ -68,10 +68,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles:profiles (
-            username,
-            full_name
-          ),
+          profiles (username, full_name),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
@@ -87,17 +84,18 @@ const Forum = () => {
         throw error;
       }
 
-      console.log("Topics fetched:", data);
+      console.log("Raw topics data:", data);
       
       const transformedTopics = data.map(topic => ({
         ...topic,
         profiles: {
-          username: topic.profiles?.[0]?.username ?? "Unknown",
-          full_name: topic.profiles?.[0]?.full_name ?? "Unknown"
+          username: topic.profiles?.username ?? "Unknown",
+          full_name: topic.profiles?.full_name ?? "Unknown"
         },
         reply_count: topic.forum_replies?.[0]?.count || 0
       }));
 
+      console.log("Transformed topics:", transformedTopics);
       setTopics(transformedTopics);
     } catch (error) {
       console.error("Error in fetchTopics:", error);
