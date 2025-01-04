@@ -84,8 +84,11 @@ export const HashHandler = () => {
 
           toast.success('Password has been reset successfully');
           navigate('/');
-        } else if (accessToken && refreshToken) {
-          // Handle normal authentication flow
+          return;
+        }
+
+        // Handle normal authentication flow
+        if (accessToken && refreshToken) {
           console.log('Processing normal authentication flow');
           const sessionError = await handleSessionUpdate(accessToken, refreshToken, navigate);
           

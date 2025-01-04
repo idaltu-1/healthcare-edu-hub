@@ -17,6 +17,7 @@ import MyAccount from "./pages/MyAccount";
 import Settings from "./pages/Settings";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
+import { HashHandler } from "./components/auth/components/HashHandler";
 
 const queryClient = new QueryClient();
 
@@ -25,9 +26,10 @@ function App() {
     <SessionContextProvider supabaseClient={supabase}>
       <QueryClientProvider client={queryClient}>
         <Router>
+          <HashHandler />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/*" element={<Auth />} />
             <Route path="/business" element={<Business />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/finance" element={<Finance />} />

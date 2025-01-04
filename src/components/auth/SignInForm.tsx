@@ -37,13 +37,12 @@ export const SignInForm = () => {
   // Get the current domain and construct the redirect URL
   const siteUrl = window.location.origin;
   // Ensure we're using the correct path for auth redirects
-  const redirectTo = `${siteUrl}/auth/callback`;
+  const redirectTo = `${siteUrl}/auth`;
   
   console.log('Auth redirect URL:', redirectTo);
 
   return (
     <>
-      <HashHandler />
       <Auth
         supabaseClient={supabase}
         appearance={authAppearance}
