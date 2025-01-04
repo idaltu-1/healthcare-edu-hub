@@ -1,61 +1,54 @@
-import React from "react";
-import { Link, FileText } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Resource } from "@/types/course";
+import { Card, CardContent } from "@/components/ui/card";
+import { FileText, Link as LinkIcon, Video } from "lucide-react";
 
-interface Resource {
-  id: string;
-  title: string;
-  description: string | null;
-  resource_type: "pdf" | "link";
-  resource_url: string;
-}
-
-interface ResourceListProps {
+export interface ResourceListProps {
   resources: Resource[];
+  loading?: boolean;
 }
 
-const ResourceList: React.FC<ResourceListProps> = ({ resources }) => {
+const ResourceList = ({ resources, loading }: ResourceListProps) => {
+  if (loading) {
+    return <div>Loading resources...</div>;
+  }
+
+  const getIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'pdf':
+        return <FileText className="h-5 w-5" />;
+      case 'video':
+        return <Video className="h-5 w-5" />;
+      default:
+        return <LinkIcon className="h-5 w-5" />;
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Course Resources</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {resources?.map((resource) => (
-            <div
-              key={resource.id}
-              className="flex items-start space-x-4 p-4 border rounded-lg"
-            >
-              {resource.resource_type === "pdf" ? (
-                <FileText className="w-6 h-6 text-blue-500" />
-              ) : (
-                <Link className="w-6 h-6 text-green-500" />
-              )}
-              <div className="flex-1">
-                <h3 className="font-medium">{resource.title}</h3>
-                {resource.description && (
-                  <p className="text-sm text-gray-500">{resource.description}</p>
-                )}
-                <a
-                  href={resource.resource_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-500 hover:underline mt-1 inline-block"
-                >
-                  {resource.resource_type === "pdf" ? "View PDF" : "Visit Link"}
-                </a>
-              </div>
+    <div className="space-y-4">
+      {resources.map((resource) => (
+        <Card key={resource.id}>
+          <CardContent className="flex items-center p-4">
+            <div className="mr-4">
+              {getIcon(resource.resource_type)}
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            <div>
+              <h3 className="font-medium">{resource.title}</h3>
+              {resource.description && (
+                <p className="text-sm text-gray-500">{resource.description}</p>
+              )}
+              <a
+                href={resource.resource_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-500 hover:text-blue-600"
+              >
+                View Resource
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 
