@@ -6,6 +6,7 @@ import { HashHandler } from "./components/HashHandler";
 import { authAppearance } from "./components/AuthAppearance";
 import { handleAuthStateChange } from "./utils/authStateHandler";
 import { toast } from "sonner";
+import { AuthChangeEvent } from "@supabase/supabase-js";
 
 export const SignInForm = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export const SignInForm = () => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: AuthChangeEvent, session) => {
         console.log("Auth state changed:", event, session);
         
         if (event === 'SIGNED_IN' && session) {
@@ -34,8 +35,6 @@ export const SignInForm = () => {
           console.log("User signed out");
         } else if (event === 'USER_UPDATED') {
           console.log("User updated");
-        } else if (event === 'USER_DELETED') {
-          console.log("User deleted");
         } else if (event === 'PASSWORD_RECOVERY') {
           console.log("Password recovery initiated");
         }

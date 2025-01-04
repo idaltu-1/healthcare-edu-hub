@@ -1,10 +1,10 @@
-import { AuthError, Session } from "@supabase/supabase-js";
+import { AuthError, Session, AuthChangeEvent } from "@supabase/supabase-js";
 import { NavigateFunction } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const handleAuthStateChange = (
-  event: string,
+  event: AuthChangeEvent,
   session: Session | null,
   navigate: NavigateFunction
 ) => {
@@ -29,6 +29,12 @@ export const handleAuthStateChange = (
       console.log("User account deleted");
       toast.info("Account deleted successfully");
       navigate('/auth');
+    } else if (event === 'INITIAL_SESSION') {
+      console.log("Initial session established");
+    } else if (event === 'TOKEN_REFRESHED') {
+      console.log("Token refreshed");
+    } else if (event === 'MFA_CHALLENGE_VERIFIED') {
+      console.log("MFA challenge verified");
     }
   } catch (error) {
     console.error('Error handling auth state change:', error);
