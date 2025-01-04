@@ -1,9 +1,10 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 interface SignInFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (event: AuthChangeEvent, session: Session | null) => void;
 }
 
 export const SignInForm = ({ onSuccess }: SignInFormProps) => {
@@ -40,7 +41,7 @@ export const SignInForm = ({ onSuccess }: SignInFormProps) => {
       providers={[]}
       redirectTo={`${window.location.origin}/auth`}
       view="sign_in"
-      onSuccess={onSuccess}
+      onAuthSuccess={onSuccess}
     />
   );
 };

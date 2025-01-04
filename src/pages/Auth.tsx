@@ -5,14 +5,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SignInForm } from "@/components/auth/SignInForm";
 import { RegistrationForm } from "@/components/auth/RegistrationForm";
 import { toast } from "sonner";
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 const Auth = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("signin");
 
-  const handleSuccess = () => {
-    toast.success("Authentication successful!");
-    navigate("/");
+  const handleSuccess = (event: AuthChangeEvent, session: Session | null) => {
+    if (event === 'SIGNED_IN' && session) {
+      toast.success("Authentication successful!");
+      navigate("/");
+    }
   };
 
   return (
