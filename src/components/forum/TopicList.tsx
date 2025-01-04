@@ -8,9 +8,9 @@ interface Topic {
   title: string;
   content: string;
   created_at: string;
-  user: {
-    full_name?: string;
-    username?: string;
+  profiles?: {
+    full_name: string | null;
+    username: string | null;
   };
   reply_count: number;
 }
@@ -39,7 +39,7 @@ const TopicList = ({ topics }: TopicListProps) => {
                   <div className="flex items-center">
                     <UserRound className="h-4 w-4 mr-1" />
                     <span>
-                      {topic.user?.full_name || topic.user?.username || "Anonymous"}
+                      {topic.profiles?.full_name || topic.profiles?.username || "Anonymous"}
                     </span>
                   </div>
                   <span>

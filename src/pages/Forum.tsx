@@ -15,11 +15,14 @@ interface TopicWithUser {
   title: string;
   content: string;
   created_at: string;
-  user: {
+  user_id: string;
+  category_id: string;
+  profiles?: {
     full_name: string | null;
     username: string | null;
-  } | null;
+  };
   forum_replies: { count: number }[];
+  reply_count: number;
 }
 
 const Forum = () => {
@@ -63,7 +66,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles (username, full_name),
+          profiles!forum_topics_user_id_fkey (username, full_name),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
