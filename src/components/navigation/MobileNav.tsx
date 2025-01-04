@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { UserCog, LogOut, LogIn, Menu } from "lucide-react";
+import { UserCog, LogOut, LogIn, Menu, Settings2 } from "lucide-react";
 import { MenuItem } from "./MenuItems";
 import {
   Sheet,
@@ -48,6 +48,14 @@ const MobileNav = ({
             ))}
             {session ? (
               <>
+                <Button 
+                  variant="default"
+                  className="bg-secondary text-primary hover:bg-secondary/90 w-full justify-start"
+                  onClick={() => handleNavigation("/settings")}
+                >
+                  <Settings2 size={18} className="mr-2" />
+                  Settings
+                </Button>
                 <Button 
                   variant="default"
                   className="bg-secondary text-primary hover:bg-secondary/90 w-full justify-start"
