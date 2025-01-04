@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut, LogIn, Menu } from "lucide-react";
+import { UserCog, LogOut, LogIn, Menu } from "lucide-react";
 import { MenuItem } from "./MenuItems";
 import {
   Sheet,
@@ -49,16 +49,16 @@ const MobileNav = ({
             {session ? (
               <>
                 <Button 
-                  variant="ghost" 
-                  className="text-primary-foreground hover:text-secondary w-full justify-start"
+                  variant="default"
+                  className="bg-secondary text-primary hover:bg-secondary/90 w-full justify-start"
                   onClick={() => handleNavigation("/settings")}
                 >
-                  <Settings size={18} className="mr-2" />
+                  <UserCog size={18} className="mr-2" />
                   My Account
                 </Button>
                 <Button 
-                  variant="default" 
-                  className="bg-secondary text-primary hover:bg-secondary/90 w-full"
+                  variant="ghost" 
+                  className="text-primary-foreground hover:text-secondary w-full justify-start"
                   onClick={handleLogout}
                 >
                   <LogOut size={18} className="mr-2" />
