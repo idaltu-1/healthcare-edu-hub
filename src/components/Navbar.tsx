@@ -8,7 +8,6 @@ import MobileNav from "./navigation/MobileNav";
 import { menuItems } from "./navigation/MenuItems";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const session = useSession();
   const supabase = useSupabaseClient();
@@ -30,7 +29,6 @@ const Navbar = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    setIsOpen(false);
   };
 
   return (

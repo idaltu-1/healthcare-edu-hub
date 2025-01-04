@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut } from "lucide-react";
+import { Settings, LogOut, LogIn } from "lucide-react";
 import { MenuItem } from "./MenuItems";
 
 interface DesktopNavProps {
@@ -18,7 +18,7 @@ const DesktopNav = ({
   handleAuth,
 }: DesktopNavProps) => {
   return (
-    <div className="hidden md:flex md:items-center md:space-x-6">
+    <div className="hidden md:flex md:items-center md:space-x-4">
       {menuItems.map((item) => (
         <button
           key={item.label}
@@ -30,14 +30,14 @@ const DesktopNav = ({
         </button>
       ))}
       {session ? (
-        <>
+        <div className="flex items-center space-x-2">
           <Button 
             variant="ghost" 
             className="text-primary-foreground hover:text-secondary"
             onClick={() => handleNavigation("/settings")}
           >
             <Settings size={18} className="mr-2" />
-            Account Settings
+            My Account
           </Button>
           <Button 
             variant="default" 
@@ -47,14 +47,15 @@ const DesktopNav = ({
             <LogOut size={18} className="mr-2" />
             Logout
           </Button>
-        </>
+        </div>
       ) : (
         <Button 
           variant="default" 
           className="bg-secondary text-primary hover:bg-secondary/90"
           onClick={handleAuth}
         >
-          Get Started
+          <LogIn size={18} className="mr-2" />
+          Login
         </Button>
       )}
     </div>
