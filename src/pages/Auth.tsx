@@ -62,6 +62,10 @@ const AuthPage = () => {
           theme="light"
           providers={[]}
           redirectTo={window.location.origin}
+          onError={(error) => {
+            console.error('Auth error:', error);
+            toast.error(error.message);
+          }}
         />
       </div>
     </div>
