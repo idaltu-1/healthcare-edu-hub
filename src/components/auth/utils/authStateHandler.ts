@@ -19,16 +19,12 @@ export const handleAuthStateChange = (
       console.log("User signed out");
       toast.info("Signed out successfully");
       navigate('/auth');
-    } else if (event === 'PASSWORD_RECOVERY') {
-      console.log("Password recovery event detected");
-      toast.info("Password recovery initiated");
     } else if (event === 'USER_UPDATED') {
       console.log("User profile updated");
       toast.success("Profile updated successfully");
-    } else if (event === 'USER_DELETED') {
-      console.log("User account deleted");
-      toast.info("Account deleted successfully");
-      navigate('/auth');
+    } else if (event === 'PASSWORD_RECOVERY') {
+      console.log("Password recovery initiated");
+      toast.info("Password recovery initiated");
     } else if (event === 'INITIAL_SESSION') {
       console.log("Initial session established");
     } else if (event === 'TOKEN_REFRESHED') {
