@@ -3,6 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Users, MessageSquare, Search, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@supabase/auth-helpers-react";
@@ -17,6 +25,10 @@ const Community = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<CommunityMember | null>(null);
+  const [messageContent, setMessageContent] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     fetchMembers();
@@ -87,6 +99,53 @@ const Community = () => {
     }
   };
 
+  const handleSendMessage = async () => {
+    if (!session?.user || !selectedMember) {
+      toast.error("Please sign in to send messages");
+      return;
+    }
+
+    if (!messageContent.trim()) {
+      toast.error("Please enter a message");
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      const { error } = await supabase
+        .from('direct_messages')
+        .insert([
+          {
+            sender_id: session.user.id,
+            recipient_id: selectedMember.user_id,
+            content: messageContent.trim(),
+          },
+        ]);
+
+      if (error) throw error;
+
+      toast.success("Message sent successfully!");
+      setMessageContent("");
+      setMessageDialogOpen(false);
+      setSelectedMember(null);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const openMessageDialog = (member: CommunityMember) => {
+    if (!session) {
+      toast.error("Please sign in to send messages");
+      return;
+    }
+    setSelectedMember(member);
+    setMessageDialogOpen(true);
+  };
+
   const filteredMembers = members.filter(
     (member) =>
       member.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -153,9 +212,7 @@ const Community = () => {
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() =>
-                      toast.info("Direct messaging coming soon!")
-                    }
+                    onClick={() => openMessageDialog(member)}
                   >
                     <MessageSquare className="mr-2 h-4 w-4" />
                     Message
@@ -168,6 +225,36 @@ const Community = () => {
           )}
         </div>
       </div>
+
+      <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Message to {selectedMember?.full_name}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Type your message here..."
+              value={messageContent}
+              onChange={(e) => setMessageContent(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setMessageDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={isSending || !messageContent.trim()}
+            >
+              {isSending ? "Sending..." : "Send Message"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
