@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 const AuthPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [view, setView] = useState<'sign_in' | 'sign_up' | 'forgotten_password'>('sign_in');
 
   useEffect(() => {
     // Check if user is already logged in
@@ -71,8 +70,8 @@ const AuthPage = () => {
         });
       }
 
-      // Handle initial signup
-      if (event === 'SIGNED_UP') {
+      // Handle initial signup - using USER_UPDATED instead of SIGNED_UP
+      if (event === 'USER_UPDATED') {
         console.log('New user signed up');
         toast({
           title: "Welcome to Doc.MBA!",
@@ -142,9 +141,7 @@ const AuthPage = () => {
             />
             <h2 className="text-2xl font-bold text-primary">Welcome to Doc.MBA</h2>
             <p className="mt-2 text-muted-foreground">
-              {view === 'sign_in' ? 'Sign in to your account' : 
-               view === 'sign_up' ? 'Create your account' : 
-               'Reset your password'}
+              Sign in to your account or create a new one
             </p>
           </div>
           
@@ -179,13 +176,7 @@ const AuthPage = () => {
               }}
               theme="light"
               providers={[]}
-              view={view}
-              showLinks={true}
               redirectTo="https://doc.mba"
-              onViewChange={(newView) => {
-                console.log('View changed to:', newView);
-                setView(newView as 'sign_in' | 'sign_up' | 'forgotten_password');
-              }}
             />
           </div>
         </div>
