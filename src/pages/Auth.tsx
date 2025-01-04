@@ -71,7 +71,7 @@ const AuthPage = () => {
       }
 
       // Handle initial signup
-      if (event === 'SIGNED_UP') {
+      if (event === 'USER_UPDATED' && !session?.user?.email_confirmed_at) {
         console.log('New user signed up - Verification email should be sent');
         toast({
           title: "Welcome to Doc.MBA!",
@@ -176,7 +176,7 @@ const AuthPage = () => {
               }}
               theme="light"
               providers={[]}
-              redirectTo="https://doc.mba"
+              redirectTo={`${window.location.origin}/auth`}
             />
           </div>
         </div>
