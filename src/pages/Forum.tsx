@@ -65,7 +65,10 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles (username, full_name),
+          profiles!inner (
+            username,
+            full_name
+          ),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
