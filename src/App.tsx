@@ -1,48 +1,22 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SessionContextProvider } from "@supabase/auth-helpers-react";
-import { supabase } from "@/integrations/supabase/client";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Community from "./pages/Community";
-import Innovation from "./pages/Innovation";
-import Leadership from "./pages/Leadership";
-import Business from "./pages/Business";
-import Practice from "./pages/Practice";
-import Finance from "./pages/Finance";
-import Forum from "./pages/Forum";
-import TopicDetail from "./pages/TopicDetail";
-import Courses from "./pages/Courses";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Index from "@/pages/Index";
+import Auth from "@/pages/Auth";
+import Courses from "@/pages/Courses";
+import CourseDetail from "@/pages/CourseDetail";
+import { Toaster } from "sonner"; // Ensure to import Toaster if it's used
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SessionContextProvider supabaseClient={supabase}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/innovation" element={<Innovation />} />
-            <Route path="/leadership" element={<Leadership />} />
-            <Route path="/business" element={<Business />} />
-            <Route path="/practice" element={<Practice />} />
-            <Route path="/finance" element={<Finance />} />
-            <Route path="/forum" element={<Forum />} />
-            <Route path="/forum/topic/:topicId" element={<TopicDetail />} />
-            <Route path="/courses" element={<Courses />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SessionContextProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:courseId" element={<CourseDetail />} />
+      </Routes>
+      <Toaster />
+    </Router>
+  );
+}
 
 export default App;
