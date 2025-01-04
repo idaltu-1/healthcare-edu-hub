@@ -6,6 +6,9 @@ import Courses from "@/pages/Courses";
 import CourseDetail from "@/pages/CourseDetail";
 import Settings from "@/pages/Settings";
 import MyAccount from "@/pages/MyAccount";
+import Community from "@/pages/Community";
+import Forum from "@/pages/Forum";
+import TopicDetail from "@/pages/TopicDetail";
 import { Toaster } from "sonner";
 
 // Create a client
@@ -29,6 +32,9 @@ function App() {
           <Route path="/courses/:courseId" element={<CourseDetail />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/my-account" element={<MyAccount />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/forum" element={<Forum />} />
+          <Route path="/forum/topic/:topicId" element={<TopicDetail />} />
         </Routes>
         <Toaster />
       </Router>
