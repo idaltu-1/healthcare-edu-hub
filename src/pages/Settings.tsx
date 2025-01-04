@@ -34,7 +34,7 @@ const formSchema = z.object({
 const Settings = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -56,23 +56,23 @@ const Settings = () => {
       
       setUser(currentUser);
       
-      // Fetch profile data
-      const { data: profile, error } = await supabase
+      // Fetch both profile and community member data
+      const { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", currentUser.id)
         .single();
 
-      if (error) {
-        console.error("Error fetching profile:", error);
-        toast.error("Failed to load profile data");
-        return;
-      }
+      const { data: communityMember } = await supabase
+        .from("community_members")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .single();
 
-      if (profile) {
+      if (profile || communityMember) {
         form.reset({
-          practiceName: profile.full_name || "",
-          specialtyType: profile.specialty || "",
+          practiceName: profile?.full_name || "",
+          specialtyType: communityMember?.specialty || "",
           email: currentUser.email || "",
         });
       }
@@ -81,7 +81,7 @@ const Settings = () => {
     fetchUserData();
   }, [navigate, form]);
 
-  const handleUpdateProfile = async (values) => {
+  const handleUpdateProfile = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     try {
       // Update profile data
@@ -89,12 +89,22 @@ const Settings = () => {
         .from("profiles")
         .update({
           full_name: values.practiceName,
-          specialty: values.specialtyType,
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 
       if (profileError) throw profileError;
+
+      // Update or insert community member data
+      const { error: communityError } = await supabase
+        .from("community_members")
+        .upsert({
+          user_id: user.id,
+          full_name: values.practiceName,
+          specialty: values.specialtyType,
+        });
+
+      if (communityError) throw communityError;
 
       // Update email if changed
       if (values.email !== user.email) {
@@ -107,7 +117,7 @@ const Settings = () => {
       }
 
       toast.success("Profile updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile:", error);
       toast.error(error.message || "Failed to update profile");
     } finally {
@@ -124,7 +134,7 @@ const Settings = () => {
       if (error) throw error;
       
       toast.success("Password reset email sent. Please check your inbox.");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Password reset error:", error);
       toast.error(error.message || "Failed to send password reset email");
     }
