@@ -17,21 +17,16 @@ export const HashHandler = () => {
       }
 
       try {
-        // Remove the '#' and get the full hash content
+        // Remove the '#' from the start of the hash
         const hashContent = window.location.hash.substring(1);
         console.log('Processing hash content:', hashContent);
 
-        // Split the hash at the first occurrence of '#' if it exists again
-        const [baseHash, ...remainingHash] = hashContent.split('#');
+        // Parse all URL parameters
+        const hashParams = new URLSearchParams(hashContent);
         
-        // Parse the base hash parameters
-        const hashParams = new URLSearchParams(decodeURIComponent(baseHash));
-        
-        // Check for error parameters
+        // Extract relevant parameters
         const error = hashParams.get('error');
         const errorDescription = hashParams.get('error_description');
-        
-        // Check for auth parameters
         const type = hashParams.get('type');
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
@@ -41,7 +36,7 @@ export const HashHandler = () => {
           errorDescription, 
           type,
           hasAccessToken: !!accessToken,
-          hasRefreshToken: !!refreshToken 
+          hasRefreshToken: !!refreshToken,
         });
 
         if (error) {
@@ -56,13 +51,16 @@ export const HashHandler = () => {
           console.log('Processing password recovery flow');
           
           try {
-            // First try to update the session
+            // First try to update the session with the provided tokens
             const { data: { session }, error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken
             });
 
-            if (sessionError) throw sessionError;
+            if (sessionError) {
+              console.error('Session error:', sessionError);
+              throw sessionError;
+            }
 
             if (session) {
               // Prompt for new password
