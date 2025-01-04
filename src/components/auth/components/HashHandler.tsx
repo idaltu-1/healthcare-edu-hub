@@ -15,42 +15,52 @@ export const HashHandler = () => {
         return;
       }
 
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const error = hashParams.get('error');
-      const errorDescription = hashParams.get('error_description');
-      const type = hashParams.get('type');
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      
-      console.log('Hash params:', { 
-        error, 
-        errorDescription, 
-        type, 
-        hasAccessToken: !!accessToken,
-        hasRefreshToken: !!refreshToken 
-      });
-      
-      if (error) {
-        console.error('Auth error:', error, errorDescription);
-        toast.error(`Authentication error: ${errorDescription || error}`);
-        navigate('/auth');
-        return;
-      }
-      
-      if (type === 'recovery' && accessToken && refreshToken) {
-        console.log('Password recovery flow detected with tokens');
-        const sessionResult = await handleSessionUpdate(accessToken, refreshToken, navigate);
+      try {
+        // Remove the '#' and decode the URL parameters
+        const hashParams = new URLSearchParams(
+          decodeURIComponent(window.location.hash.substring(1))
+        );
         
-        if (!sessionResult) {
-          const newPassword = prompt('Please enter your new password:');
-          if (newPassword) {
-            await handlePasswordReset(newPassword, navigate);
+        const error = hashParams.get('error');
+        const errorDescription = hashParams.get('error_description');
+        const type = hashParams.get('type');
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        
+        console.log('Hash params:', { 
+          error, 
+          errorDescription, 
+          type, 
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken 
+        });
+        
+        if (error) {
+          console.error('Auth error:', error, errorDescription);
+          toast.error(`Authentication error: ${errorDescription || error}`);
+          navigate('/auth');
+          return;
+        }
+        
+        if (type === 'recovery' && accessToken && refreshToken) {
+          console.log('Password recovery flow detected with tokens');
+          const sessionResult = await handleSessionUpdate(accessToken, refreshToken, navigate);
+          
+          if (!sessionResult) {
+            const newPassword = prompt('Please enter your new password:');
+            if (newPassword) {
+              await handlePasswordReset(newPassword, navigate);
+            }
           }
         }
+        
+        // Clear the hash after processing
+        window.location.hash = '';
+      } catch (error) {
+        console.error('Error processing hash parameters:', error);
+        toast.error('Failed to process authentication parameters');
+        navigate('/auth');
       }
-      
-      // Clear the hash after processing
-      window.location.hash = '';
     };
 
     handleHash();
