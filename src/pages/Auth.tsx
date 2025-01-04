@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SignInForm from "@/components/auth/SignInForm";
-import RegistrationForm from "@/components/auth/RegistrationForm";
+import { SignInForm } from "@/components/auth/SignInForm";
+import { RegistrationForm } from "@/components/auth/RegistrationForm";
 import { toast } from "sonner";
 
 const Auth = () => {

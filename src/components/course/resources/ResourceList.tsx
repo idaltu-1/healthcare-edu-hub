@@ -1,23 +1,18 @@
-import { Resource } from "@/types/course";
+import { CourseResource } from "@/types/course";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Link as LinkIcon, Video } from "lucide-react";
 
-export interface ResourceListProps {
-  resources: Resource[];
-  loading?: boolean;
+interface ResourceListProps {
+  resources: CourseResource[];
 }
 
-const ResourceList = ({ resources, loading }: ResourceListProps) => {
-  if (loading) {
-    return <div>Loading resources...</div>;
-  }
-
-  const getIcon = (type: string) => {
+const ResourceList = ({ resources }: ResourceListProps) => {
+  const getResourceIcon = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'pdf':
-        return <FileText className="h-5 w-5" />;
-      case 'video':
+      case "video":
         return <Video className="h-5 w-5" />;
+      case "document":
+        return <FileText className="h-5 w-5" />;
       default:
         return <LinkIcon className="h-5 w-5" />;
     }
@@ -27,23 +22,15 @@ const ResourceList = ({ resources, loading }: ResourceListProps) => {
     <div className="space-y-4">
       {resources.map((resource) => (
         <Card key={resource.id}>
-          <CardContent className="flex items-center p-4">
-            <div className="mr-4">
-              {getIcon(resource.resource_type)}
-            </div>
-            <div>
-              <h3 className="font-medium">{resource.title}</h3>
-              {resource.description && (
-                <p className="text-sm text-gray-500">{resource.description}</p>
-              )}
-              <a
-                href={resource.resource_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-500 hover:text-blue-600"
-              >
-                View Resource
-              </a>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-4">
+              {getResourceIcon(resource.resource_type)}
+              <div>
+                <h3 className="font-semibold">{resource.title}</h3>
+                {resource.description && (
+                  <p className="text-sm text-gray-500">{resource.description}</p>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
