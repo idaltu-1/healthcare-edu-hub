@@ -42,7 +42,7 @@ const DesktopNav = ({
           <Button 
             variant="default"
             className="bg-secondary text-primary hover:bg-secondary/90"
-            onClick={() => handleNavigation("/settings")}
+            onClick={() => handleNavigation("/my-account")}
           >
             <UserCog size={18} className="mr-2" />
             My Account
