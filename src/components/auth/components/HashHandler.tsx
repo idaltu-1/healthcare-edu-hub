@@ -17,14 +17,14 @@ export const HashHandler = () => {
       }
 
       try {
-        // Remove the '#' from the start of the hash
-        const hashContent = window.location.hash.substring(1);
-        console.log('Processing hash content:', hashContent);
+        // Get the full hash content and decode it
+        const hashContent = decodeURIComponent(window.location.hash.substring(1));
+        console.log('Processing decoded hash content:', hashContent);
 
-        // Parse all URL parameters
+        // Create URLSearchParams from the decoded hash
         const hashParams = new URLSearchParams(hashContent);
         
-        // Extract relevant parameters
+        // Extract all relevant parameters
         const error = hashParams.get('error');
         const errorDescription = hashParams.get('error_description');
         const type = hashParams.get('type');
@@ -51,7 +51,7 @@ export const HashHandler = () => {
           console.log('Processing password recovery flow');
           
           try {
-            // First try to update the session with the provided tokens
+            // Update the session with the provided tokens
             const { data: { session }, error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken
@@ -77,6 +77,22 @@ export const HashHandler = () => {
           } catch (error: any) {
             console.error('Error during password reset:', error);
             toast.error(error.message || 'Failed to process password reset');
+            navigate('/auth');
+          }
+        } else if (accessToken && refreshToken) {
+          // Handle normal authentication flow
+          try {
+            const { error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+
+            if (sessionError) throw sessionError;
+            
+            navigate('/');
+          } catch (error: any) {
+            console.error('Error setting session:', error);
+            toast.error('Failed to authenticate');
             navigate('/auth');
           }
         }
