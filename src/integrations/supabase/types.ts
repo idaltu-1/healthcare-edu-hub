@@ -346,6 +346,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          created_at: string
+          dark_mode: boolean
+          email_notifications: boolean
+          id: string
+          language: string
+          marketing_emails: boolean
+          sms_notifications: boolean
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dark_mode?: boolean
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          marketing_emails?: boolean
+          sms_notifications?: boolean
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dark_mode?: boolean
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          marketing_emails?: boolean
+          sms_notifications?: boolean
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
