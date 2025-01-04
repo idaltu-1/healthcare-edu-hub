@@ -20,7 +20,7 @@ interface TopicWithUser {
   profiles?: {
     username: string | null;
     full_name: string | null;
-  };
+  } | null;
   reply_count: number;
 }
 
@@ -65,7 +65,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles!forum_topics_user_id_fkey (username, full_name),
+          profiles:user_id (username, full_name),
           forum_replies (count)
         `)
         .order("created_at", { ascending: false });
