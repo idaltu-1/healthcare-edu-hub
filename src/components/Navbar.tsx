@@ -1,9 +1,30 @@
 import { useState } from "react";
-import { Menu, X, Users, BookOpen, Rss, MessageSquare } from "lucide-react";
+import { Menu, X, Users, BookOpen, Rss, MessageSquare, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const session = useSession();
+  const supabase = useSupabaseClient();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Logged out successfully");
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Error logging out");
+    }
+  };
+
+  const handleAuth = () => {
+    navigate("/auth");
+  };
 
   return (
     <nav className="bg-primary/95 backdrop-blur-sm shadow-sm fixed w-full z-50">
@@ -39,7 +60,24 @@ const Navbar = () => {
               <MessageSquare size={18} />
               Forum
             </a>
-            <Button variant="default" className="bg-secondary text-primary hover:bg-secondary/90">Get Started</Button>
+            {session ? (
+              <Button 
+                variant="default" 
+                className="bg-secondary text-primary hover:bg-secondary/90"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} />
+                Logout
+              </Button>
+            ) : (
+              <Button 
+                variant="default" 
+                className="bg-secondary text-primary hover:bg-secondary/90"
+                onClick={handleAuth}
+              >
+                Get Started
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -75,7 +113,24 @@ const Navbar = () => {
               <MessageSquare size={18} />
               Forum
             </a>
-            <Button variant="default" className="w-full mt-2 bg-secondary text-primary hover:bg-secondary/90">Get Started</Button>
+            {session ? (
+              <Button 
+                variant="default" 
+                className="w-full mt-2 bg-secondary text-primary hover:bg-secondary/90"
+                onClick={handleLogout}
+              >
+                <LogOut size={18} />
+                Logout
+              </Button>
+            ) : (
+              <Button 
+                variant="default" 
+                className="w-full mt-2 bg-secondary text-primary hover:bg-secondary/90"
+                onClick={handleAuth}
+              >
+                Get Started
+              </Button>
+            )}
           </div>
         </div>
       )}
