@@ -62,21 +62,21 @@ const AuthPage = () => {
 
       // Handle email confirmation and user updates
       if (event === 'USER_UPDATED') {
-        console.log('User updated');
+        console.log('User updated - Email verification status:', session?.user?.email_confirmed_at);
         toast({
-          title: "Email Confirmation",
-          description: "Please check your email for the confirmation link",
-          duration: 5000,
+          title: "Email Verification Required",
+          description: "Please check your email for the confirmation link. You won't be able to access all features until you verify your email.",
+          duration: 8000,
         });
       }
 
-      // Handle initial signup - using USER_UPDATED instead of SIGNED_UP
-      if (event === 'USER_UPDATED') {
-        console.log('New user signed up');
+      // Handle initial signup
+      if (event === 'SIGNED_UP') {
+        console.log('New user signed up - Verification email should be sent');
         toast({
           title: "Welcome to Doc.MBA!",
-          description: "Please check your email for the confirmation link",
-          duration: 5000,
+          description: "Please check your email for the verification link. You'll need to verify your email to access all features.",
+          duration: 8000,
         });
       }
     });
