@@ -8,6 +8,11 @@ interface SignInFormProps {
 }
 
 export const SignInForm = ({ onSuccess }: SignInFormProps) => {
+  // Set up auth state change listener
+  if (onSuccess) {
+    supabase.auth.onAuthStateChange(onSuccess);
+  }
+
   return (
     <Auth
       supabaseClient={supabase}
@@ -41,7 +46,6 @@ export const SignInForm = ({ onSuccess }: SignInFormProps) => {
       providers={[]}
       redirectTo={`${window.location.origin}/auth`}
       view="sign_in"
-      onSuccess={onSuccess}
     />
   );
 };
