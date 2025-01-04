@@ -11,14 +11,25 @@ export const SignInForm = () => {
   useEffect(() => {
     // Check URL hash for errors or password reset
     const checkUrlHash = async () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const hash = window.location.hash;
+      console.log('Current URL hash:', hash); // Debug log
+      
+      if (!hash) {
+        console.log('No hash present in URL'); // Debug log
+        return;
+      }
+
+      const hashParams = new URLSearchParams(hash.substring(1));
       const error = hashParams.get('error');
       const errorDescription = hashParams.get('error_description');
       const type = hashParams.get('type');
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      
+      console.log('Hash params:', { error, errorDescription, type, hasAccessToken: !!accessToken }); // Debug log
       
       if (error) {
         console.error('Auth error:', error, errorDescription);
-        // Show error message and clear hash
         toast.error(errorDescription || 'Authentication error occurred');
         window.location.hash = '';
         return;
@@ -38,7 +49,6 @@ export const SignInForm = () => {
               toast.error('Error updating password: ' + error.message);
             } else {
               toast.success('Password updated successfully! Please sign in with your new password.');
-              // Clear the hash
               window.location.hash = '';
               navigate('/auth');
             }
@@ -46,6 +56,26 @@ export const SignInForm = () => {
             console.error('Error in password update:', updateError);
             toast.error('Failed to update password. Please try again.');
           }
+        }
+      } else if (accessToken && refreshToken) {
+        console.log('Access token detected in URL');
+        try {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          
+          if (error) {
+            console.error('Error setting session:', error);
+            toast.error('Error setting session: ' + error.message);
+          } else {
+            console.log('Session set successfully');
+            window.location.hash = '';
+            navigate('/');
+          }
+        } catch (sessionError) {
+          console.error('Error handling session:', sessionError);
+          toast.error('Failed to set session. Please try logging in again.');
         }
       }
     };
