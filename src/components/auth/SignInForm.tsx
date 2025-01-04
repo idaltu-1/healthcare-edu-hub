@@ -41,7 +41,7 @@ export const SignInForm = ({ onSuccess }: SignInFormProps) => {
       providers={[]}
       redirectTo={`${window.location.origin}/auth`}
       view="sign_in"
-      onAuthSuccess={onSuccess}
+      onSuccess={onSuccess}
     />
   );
 };
