@@ -41,7 +41,6 @@ export const handlePasswordReset = async (
     
     console.log('Password updated successfully');
     toast.success('Password updated successfully! Please sign in with your new password.');
-    window.location.hash = '';
     navigate('/auth');
     return null;
   } catch (error) {

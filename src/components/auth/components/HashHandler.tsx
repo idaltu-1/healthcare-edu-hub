@@ -1,22 +1,21 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { handlePasswordReset, handleSessionUpdate } from "../utils/authStateHandler";
+import { toast } from "sonner";
 
 export const HashHandler = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUrlHash = async () => {
-      const hash = window.location.hash;
-      console.log('Current URL hash:', hash);
+    const handleHash = async () => {
+      console.log('Current URL hash:', window.location.hash);
       
-      if (!hash) {
+      if (!window.location.hash) {
         console.log('No hash present in URL');
         return;
       }
 
-      const hashParams = new URLSearchParams(hash.substring(1));
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const error = hashParams.get('error');
       const errorDescription = hashParams.get('error_description');
       const type = hashParams.get('type');
@@ -33,25 +32,28 @@ export const HashHandler = () => {
       
       if (error) {
         console.error('Auth error:', error, errorDescription);
-        toast.error(errorDescription || 'Authentication error occurred');
-        window.location.hash = '';
+        toast.error(`Authentication error: ${errorDescription || error}`);
+        navigate('/auth');
         return;
       }
       
       if (type === 'recovery' && accessToken && refreshToken) {
         console.log('Password recovery flow detected with tokens');
-        await handleSessionUpdate(accessToken, refreshToken, navigate);
-        const newPassword = prompt('Please enter your new password:');
-        if (newPassword) {
-          await handlePasswordReset(newPassword, navigate);
+        const sessionResult = await handleSessionUpdate(accessToken, refreshToken, navigate);
+        
+        if (!sessionResult) {
+          const newPassword = prompt('Please enter your new password:');
+          if (newPassword) {
+            await handlePasswordReset(newPassword, navigate);
+          }
         }
-      } else if (accessToken && refreshToken) {
-        console.log('Access token detected in URL');
-        await handleSessionUpdate(accessToken, refreshToken, navigate);
       }
+      
+      // Clear the hash after processing
+      window.location.hash = '';
     };
 
-    checkUrlHash();
+    handleHash();
   }, [navigate]);
 
   return null;

@@ -19,7 +19,8 @@ export const SignInForm = () => {
     };
   }, [navigate]);
 
-  const siteUrl = "https://doc.mba";
+  // Use window.location.origin to get the current domain
+  const siteUrl = window.location.origin;
   const redirectTo = `${siteUrl}/auth`;
   
   console.log('Auth redirect URL:', redirectTo);
