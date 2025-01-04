@@ -7,14 +7,9 @@ import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@supabase/auth-helpers-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 
-interface CommunityMember {
-  id: string;
-  full_name: string;
-  specialty: string;
-  location: string;
-  created_at: string;
-}
+type CommunityMember = Database['public']['Tables']['community_members']['Row'];
 
 const Community = () => {
   const session = useSession();
@@ -33,9 +28,9 @@ const Community = () => {
   const fetchMembers = async () => {
     try {
       const { data, error } = await supabase
-        .from("community_members")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .from('community_members')
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setMembers(data || []);
@@ -48,14 +43,16 @@ const Community = () => {
   };
 
   const checkMembership = async () => {
+    if (!session?.user) return;
+    
     try {
       const { data, error } = await supabase
-        .from("community_members")
-        .select("id")
-        .eq("user_id", session?.user.id)
+        .from('community_members')
+        .select('id')
+        .eq('user_id', session.user.id)
         .single();
 
-      if (error && error.code !== "PGRST116") throw error;
+      if (error && error.code !== 'PGRST116') throw error;
       setIsMember(!!data);
     } catch (error) {
       console.error("Error checking membership:", error);
@@ -69,14 +66,16 @@ const Community = () => {
     }
 
     try {
-      const { error } = await supabase.from("community_members").insert([
-        {
-          user_id: session.user.id,
-          full_name: session.user.email?.split("@")[0] || "Anonymous",
-          specialty: "Not specified",
-          location: "Not specified",
-        },
-      ]);
+      const { error } = await supabase
+        .from('community_members')
+        .insert([
+          {
+            user_id: session.user.id,
+            full_name: session.user.email?.split("@")[0] || "Anonymous",
+            specialty: "Not specified",
+            location: "Not specified",
+          },
+        ]);
 
       if (error) throw error;
       toast.success("Successfully joined the community!");
@@ -91,8 +90,8 @@ const Community = () => {
   const filteredMembers = members.filter(
     (member) =>
       member.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.location.toLowerCase().includes(searchTerm.toLowerCase())
+      (member.specialty?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (member.location?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -146,10 +145,10 @@ const Community = () => {
                     {member.full_name}
                   </h3>
                   <p className="text-gray-600 text-sm mb-1">
-                    {member.specialty}
+                    {member.specialty || "Specialty not specified"}
                   </p>
                   <p className="text-gray-600 text-sm mb-4">
-                    {member.location}
+                    {member.location || "Location not specified"}
                   </p>
                   <Button
                     variant="outline"
