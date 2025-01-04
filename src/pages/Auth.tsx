@@ -15,10 +15,13 @@ const AuthPage = () => {
       
       if (event === 'PASSWORD_RECOVERY') {
         console.log('Password recovery event detected');
+        // Redirect to settings page for password reset
+        navigate("/settings");
         toast({
-          title: "Password Recovery",
-          description: "Please enter your new password"
+          title: "Password Reset",
+          description: "You can now set your new password in the settings page"
         });
+        return;
       }
 
       if (event === 'SIGNED_IN') {

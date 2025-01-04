@@ -1,9 +1,10 @@
-import { Home, BookOpen, Users, MessageSquare } from "lucide-react";
+import { Home, BookOpen, Users, MessageSquare, Settings } from "lucide-react";
 
 export interface MenuItem {
   label: string;
   path: string;
   icon: any;
+  requiresAuth?: boolean;
 }
 
 export const menuItems: MenuItem[] = [
@@ -26,5 +27,11 @@ export const menuItems: MenuItem[] = [
     label: "Forum",
     path: "/forum",
     icon: MessageSquare,
+  },
+  {
+    label: "Settings",
+    path: "/settings",
+    icon: Settings,
+    requiresAuth: true,
   },
 ];
