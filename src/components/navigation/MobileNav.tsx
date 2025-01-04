@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Settings, LogOut, LogIn } from "lucide-react";
+import { Settings, LogOut, LogIn, Menu } from "lucide-react";
 import { MenuItem } from "./MenuItems";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
 
 interface MobileNavProps {
   menuItems: MenuItem[];
@@ -24,11 +23,15 @@ const MobileNav = ({
   handleAuth,
 }: MobileNavProps) => {
   return (
-    <div className="flex items-center md:hidden">
+    <div className="md:hidden">
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" className="text-primary-foreground hover:text-secondary">
-            <Menu size={24} />
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="text-primary-foreground hover:text-secondary"
+          >
+            <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-[300px] bg-primary">
