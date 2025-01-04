@@ -14,7 +14,7 @@ const Forum = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [topics, setTopics] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
 
   useEffect(() => {
@@ -24,34 +24,61 @@ const Forum = () => {
 
   const fetchCategories = async () => {
     try {
+      console.log("Fetching categories...");
       const { data, error } = await supabase
         .from("forum_categories")
         .select("*")
         .order("name");
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Error fetching categories:", error);
+        throw error;
+      }
+      
+      console.log("Categories fetched:", data);
       setCategories(data);
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error("Error in fetchCategories:", error);
       toast.error("Failed to load forum categories");
     }
   };
 
   const fetchTopics = async () => {
     try {
-      const query = supabase
+      console.log("Fetching topics with category filter:", selectedCategory);
+      let query = supabase
         .from("forum_topics")
-        .select("*")
+        .select(`
+          *,
+          profiles (username, full_name),
+          forum_replies (count)
+        `)
         .order("created_at", { ascending: false });
 
-      if (selectedCategory) {
-        query.eq("category_id", selectedCategory);
+      if (selectedCategory !== "all") {
+        query = query.eq("category_id", selectedCategory);
       }
 
       const { data, error } = await query;
-      if (error) throw error;
-      setTopics(data);
+      
+      if (error) {
+        console.error("Error fetching topics:", error);
+        throw error;
+      }
+
+      console.log("Topics fetched:", data);
+      const topicsWithReplyCount = data.map(topic => ({
+        ...topic,
+        reply_count: topic.forum_replies?.[0]?.count || 0,
+        user: {
+          full_name: topic.profiles?.full_name,
+          username: topic.profiles?.username
+        }
+      }));
+
+      setTopics(topicsWithReplyCount);
     } catch (error) {
-      console.error("Error fetching topics:", error);
+      console.error("Error in fetchTopics:", error);
       toast.error("Failed to load forum topics");
     }
   };
@@ -64,20 +91,29 @@ const Forum = () => {
     }
 
     try {
-      const { error } = await supabase.from("forum_topics").insert([
-        {
-          title: newTopic.title,
-          content: newTopic.content,
-          category_id: newTopic.category_id,
-          user_id: session.user.id,
-        },
-      ]);
+      console.log("Creating new topic:", newTopic);
+      const { data, error } = await supabase
+        .from("forum_topics")
+        .insert([
+          {
+            title: newTopic.title,
+            content: newTopic.content,
+            category_id: newTopic.category_id,
+            user_id: session.user.id,
+          }
+        ])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error inserting topic:", error);
+        throw error;
+      }
 
+      console.log("Topic created successfully:", data);
       toast.success("Topic created successfully");
       setIsNewTopicOpen(false);
-      fetchTopics();
+      await fetchTopics(); // Refresh the topics list
     } catch (error) {
       console.error("Error creating topic:", error);
       toast.error("Failed to create topic");
