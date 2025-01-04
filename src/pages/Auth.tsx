@@ -11,7 +11,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("signin");
 
-  const handleSuccess = (event: AuthChangeEvent, session: Session | null) => {
+  const handleAuthSuccess = (event: AuthChangeEvent, session: Session | null) => {
     if (event === 'SIGNED_IN' && session) {
       toast.success("Authentication successful!");
       navigate("/");
@@ -34,10 +34,10 @@ const Auth = () => {
                 <TabsTrigger value="register">Register</TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
-                <SignInForm onSuccess={handleSuccess} />
+                <SignInForm onSuccess={handleAuthSuccess} />
               </TabsContent>
               <TabsContent value="register">
-                <RegistrationForm onSuccess={handleSuccess} />
+                <RegistrationForm />
               </TabsContent>
             </Tabs>
           </CardContent>
