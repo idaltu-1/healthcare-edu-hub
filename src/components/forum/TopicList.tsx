@@ -8,7 +8,7 @@ interface Topic {
   title: string;
   content: string;
   created_at: string;
-  profiles?: {
+  profiles: {
     full_name: string | null;
     username: string | null;
   } | null;

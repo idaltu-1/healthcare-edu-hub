@@ -18,7 +18,7 @@ interface TopicWithUser {
   user_id: string;
   category_id: string;
   updated_at: string;
-  profiles?: {
+  profiles: {
     username: string | null;
     full_name: string | null;
   } | null;
@@ -66,7 +66,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles:user_id (
+          profiles (
             username,
             full_name
           ),
