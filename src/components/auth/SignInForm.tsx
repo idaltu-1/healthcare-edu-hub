@@ -21,12 +21,21 @@ export const SignInForm = () => {
           console.log("Password recovery event received");
           const newPassword = prompt('What would you like your new password to be?');
           if (newPassword) {
-            const { error } = await supabase.auth.updateUser({ password: newPassword });
-            if (error) {
-              toast.error('Error updating password: ' + error.message);
-            } else {
-              toast.success('Password updated successfully!');
-              navigate('/');
+            try {
+              const { error } = await supabase.auth.updateUser({ 
+                password: newPassword 
+              });
+              
+              if (error) {
+                console.error('Error updating password:', error);
+                toast.error('Error updating password: ' + error.message);
+              } else {
+                toast.success('Password updated successfully!');
+                navigate('/');
+              }
+            } catch (updateError) {
+              console.error('Error in password update:', updateError);
+              toast.error('Failed to update password. Please try again.');
             }
           }
         }
