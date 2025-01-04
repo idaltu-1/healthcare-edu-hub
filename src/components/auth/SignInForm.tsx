@@ -3,17 +3,36 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const SignInForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
-      if (event === 'SIGNED_IN' && session) {
-        console.log("User signed in, redirecting to home");
-        navigate('/');
+      
+      try {
+        if (event === 'SIGNED_IN' && session) {
+          console.log("User signed in, redirecting to home");
+          navigate('/');
+        } else if (event === 'PASSWORD_RECOVERY') {
+          console.log("Password recovery event received");
+          const newPassword = prompt('What would you like your new password to be?');
+          if (newPassword) {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) {
+              toast.error('Error updating password: ' + error.message);
+            } else {
+              toast.success('Password updated successfully!');
+              navigate('/');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error handling auth state change:', error);
+        toast.error('An error occurred while processing your request');
       }
     });
 
