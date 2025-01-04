@@ -1,43 +1,20 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-const signUpSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
-  confirmPassword: z.string(),
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  practiceName: z.string().min(2, "Practice name must be at least 2 characters"),
-  specialty: z.string().min(2, "Specialty must be at least 2 characters"),
-  phoneNumber: z.string().min(10, "Please enter a valid phone number"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+import { Form } from "@/components/ui/form";
+import { RegistrationSteps } from "./registration/RegistrationSteps";
+import { signUpSchema, type SignUpSchema } from "./registration/types";
 
 export const RegistrationForm = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 2;
 
-  const form = useForm({
+  const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       email: "",
@@ -50,7 +27,7 @@ export const RegistrationForm = () => {
     },
   });
 
-  const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
+  const handleSignUp = async (values: SignUpSchema) => {
     try {
       setIsRegistering(true);
       console.log("Starting registration process", values);
@@ -68,15 +45,24 @@ export const RegistrationForm = () => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Registration error:', error);
+        throw error;
+      }
 
-      if (data) {
+      if (data?.user) {
         console.log("Registration successful", data);
-        toast.success("Registration successful! Please check your email to verify your account.");
+        
+        // Check if email confirmation is required
+        if (data.user.identities?.length === 0) {
+          toast.success("Registration successful! Please check your email to verify your account.");
+        } else {
+          toast.success("Registration successful! You can now sign in.");
+        }
       }
     } catch (error: any) {
       console.error('Error during registration:', error);
-      toast.error(error.message);
+      toast.error(error.message || "Registration failed. Please try again.");
     } finally {
       setIsRegistering(false);
     }
@@ -117,109 +103,7 @@ export const RegistrationForm = () => {
           </p>
         </div>
 
-        {currentStep === 1 ? (
-          <>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="Enter your email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Create a password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Confirm your password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        ) : (
-          <>
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your full name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="practiceName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Practice Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your practice name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="specialty"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Specialty</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your specialty" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="phoneNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your phone number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        <RegistrationSteps currentStep={currentStep} form={form} />
 
         <div className="flex justify-between gap-4 pt-4">
           {currentStep > 1 && (
