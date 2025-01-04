@@ -66,7 +66,7 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles (
+          profiles:user_id (
             username,
             full_name
           ),
