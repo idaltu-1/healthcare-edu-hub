@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, Users, BookOpen, Rss, MessageSquare, LogOut } from "lucide-react";
+import { Menu, X, Users, BookOpen, Rss, MessageSquare, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
@@ -68,14 +68,24 @@ const Navbar = () => {
               </button>
             ))}
             {session ? (
-              <Button 
-                variant="default" 
-                className="bg-secondary text-primary hover:bg-secondary/90"
-                onClick={handleLogout}
-              >
-                <LogOut size={18} className="mr-2" />
-                Logout
-              </Button>
+              <>
+                <Button 
+                  variant="ghost" 
+                  className="text-primary-foreground hover:text-secondary"
+                  onClick={() => handleNavigation("/settings")}
+                >
+                  <Settings size={18} className="mr-2" />
+                  Account Settings
+                </Button>
+                <Button 
+                  variant="default" 
+                  className="bg-secondary text-primary hover:bg-secondary/90"
+                  onClick={handleLogout}
+                >
+                  <LogOut size={18} className="mr-2" />
+                  Logout
+                </Button>
+              </>
             ) : (
               <Button 
                 variant="default" 
@@ -108,14 +118,24 @@ const Navbar = () => {
                     </button>
                   ))}
                   {session ? (
-                    <Button 
-                      variant="default" 
-                      className="bg-secondary text-primary hover:bg-secondary/90 w-full mt-4"
-                      onClick={handleLogout}
-                    >
-                      <LogOut size={18} className="mr-2" />
-                      Logout
-                    </Button>
+                    <>
+                      <Button 
+                        variant="ghost" 
+                        className="text-primary-foreground hover:text-secondary w-full justify-start"
+                        onClick={() => handleNavigation("/settings")}
+                      >
+                        <Settings size={18} className="mr-2" />
+                        Account Settings
+                      </Button>
+                      <Button 
+                        variant="default" 
+                        className="bg-secondary text-primary hover:bg-secondary/90 w-full mt-4"
+                        onClick={handleLogout}
+                      >
+                        <LogOut size={18} className="mr-2" />
+                        Logout
+                      </Button>
+                    </>
                   ) : (
                     <Button 
                       variant="default" 
