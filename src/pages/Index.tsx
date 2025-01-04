@@ -1,15 +1,19 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
-import { Users, BookOpen, Rss, MessageSquare } from "lucide-react";
+import { Users, BookOpen, Rss, MessageSquare, UserCog, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSession } from "@supabase/auth-helpers-react";
 
 const Index = () => {
   const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+  const session = useSession();
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +23,36 @@ const Index = () => {
     }
     toast.success("Thank you for subscribing to our newsletter!");
     setEmail("");
+  };
+
+  // Account Navigation Section
+  const AccountNavigation = () => {
+    if (!session) return null;
+    
+    return (
+      <section className="py-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="default"
+              className="bg-primary text-white flex items-center gap-2"
+              onClick={() => navigate("/my-account")}
+            >
+              <UserCog className="h-5 w-5" />
+              My Account
+            </Button>
+            <Button
+              variant="default"
+              className="bg-primary text-white flex items-center gap-2"
+              onClick={() => navigate("/settings")}
+            >
+              <Settings2 className="h-5 w-5" />
+              Settings
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
   };
 
   const blogPosts = [
@@ -62,6 +96,7 @@ const Index = () => {
       <Navbar />
       <Hero />
       <Features />
+      <AccountNavigation />
       
       {/* Community Section */}
       <section id="community" className="py-16 bg-gray-50">
