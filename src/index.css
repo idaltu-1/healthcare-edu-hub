@@ -29,7 +29,7 @@
   }
 
   * {
-    @apply border-[#e2e8f0];
+    border-color: hsl(var(--border));
   }
 
   body {

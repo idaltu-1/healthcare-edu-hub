@@ -1,20 +1,36 @@
-import { BookOpen, Users, Trophy } from "lucide-react";
+import { BookOpen, Users, Trophy, Target, ChartBar, Lightbulb } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
   {
-    name: "Learn from Comprehensive Courses",
-    description: "Access expertly crafted courses designed specifically for healthcare professionals seeking business mastery.",
+    name: "Business Foundations",
+    description: "Master essential business concepts tailored for healthcare professionals.",
     icon: BookOpen,
   },
   {
-    name: "Engage with a Thriving Community",
-    description: "Connect with like-minded healthcare professionals and learn from their experiences and insights.",
+    name: "Practice Management",
+    description: "Learn effective strategies to optimize and grow your healthcare practice.",
+    icon: Target,
+  },
+  {
+    name: "Financial Strategy",
+    description: "Develop strong financial acumen for sustainable business growth.",
+    icon: ChartBar,
+  },
+  {
+    name: "Leadership Development",
+    description: "Build leadership skills to effectively manage teams and drive success.",
+    icon: Trophy,
+  },
+  {
+    name: "Community Network",
+    description: "Connect with like-minded healthcare professionals and industry leaders.",
     icon: Users,
   },
   {
-    name: "Succeed with Expert Insights",
-    description: "Gain practical knowledge and tools to transform your healthcare practice into a thriving business.",
-    icon: Trophy,
+    name: "Innovation & Growth",
+    description: "Stay ahead with cutting-edge business strategies in healthcare.",
+    icon: Lightbulb,
   },
 ];
 
@@ -24,25 +40,25 @@ const Features = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-primary sm:text-4xl">
-            Why Choose Doc.MBA?
+            Comprehensive Healthcare Business Education
           </h2>
-          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-            Comprehensive business education tailored for healthcare professionals.
+          <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-600">
+            Transform your healthcare expertise into business success with our specialized programs.
           </p>
         </div>
 
         <div className="mt-20">
-          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
-              <div key={feature.name} className="relative">
-                <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
-                  <feature.icon className="h-6 w-6" aria-hidden="true" />
-                </div>
-                <div className="ml-16">
-                  <h3 className="text-lg font-medium text-primary">{feature.name}</h3>
-                  <p className="mt-2 text-base text-gray-500">{feature.description}</p>
-                </div>
-              </div>
+              <Card key={feature.name} className="border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white mb-4">
+                    <feature.icon className="h-6 w-6" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-primary mb-2">{feature.name}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
