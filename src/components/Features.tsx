@@ -1,5 +1,6 @@
 import { BookOpen, Users, Trophy, Target, ChartBar, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 const features = [
@@ -65,15 +66,22 @@ const Features = () => {
             {features.map((feature) => (
               <Card 
                 key={feature.name} 
-                className="border border-secondary/20 hover:border-secondary hover:shadow-lg transition-all duration-300 cursor-pointer"
-                onClick={() => handleCardClick(feature.path)}
+                className="border border-secondary/20 hover:border-secondary hover:shadow-lg transition-all duration-300"
               >
                 <CardContent className="p-6">
                   <div className="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-secondary mb-4">
                     <feature.icon className="h-6 w-6" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-semibold text-primary mb-2">{feature.name}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <p className="text-gray-600 mb-6">{feature.description}</p>
+                  <Button 
+                    variant="default" 
+                    className="w-full bg-primary hover:bg-primary/90"
+                    onClick={() => handleCardClick(feature.path)}
+                  >
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Start Learning
+                  </Button>
                 </CardContent>
               </Card>
             ))}
