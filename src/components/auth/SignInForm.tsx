@@ -103,8 +103,7 @@ export const SignInForm = () => {
     };
   }, [navigate]);
 
-  const siteUrl = window.location.origin;
-  console.log('Site URL for redirects:', siteUrl);
+  console.log('Using doc.mba as redirect URL');
 
   return (
     <Auth
@@ -137,7 +136,7 @@ export const SignInForm = () => {
       }}
       theme="light"
       providers={[]}
-      redirectTo={`${siteUrl}/auth`}
+      redirectTo="https://doc.mba/auth"
     />
   );
 };
