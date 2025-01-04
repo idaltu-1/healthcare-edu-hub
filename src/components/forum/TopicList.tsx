@@ -9,8 +9,8 @@ interface Topic {
   content: string;
   created_at: string;
   profiles: {
-    full_name: string | null;
     username: string | null;
+    full_name: string | null;
   } | null;
   reply_count: number;
 }
