@@ -18,10 +18,8 @@ interface TopicWithUser {
   user_id: string;
   category_id: string;
   updated_at: string;
-  profiles: {
-    username: string | null;
-    full_name: string | null;
-  } | null;
+  username: string | null;
+  full_name: string | null;
   reply_count: number;
 }
 
@@ -66,11 +64,9 @@ const Forum = () => {
         .from("forum_topics")
         .select(`
           *,
-          profiles (
-            username,
-            full_name
-          ),
-          forum_replies (count)
+          username:profiles(username),
+          full_name:profiles(full_name),
+          forum_replies(count)
         `)
         .order("created_at", { ascending: false });
 
@@ -89,6 +85,8 @@ const Forum = () => {
       
       const transformedTopics = data.map(topic => ({
         ...topic,
+        username: topic.username?.[0]?.username || null,
+        full_name: topic.full_name?.[0]?.full_name || null,
         reply_count: topic.forum_replies?.[0]?.count || 0
       }));
 
