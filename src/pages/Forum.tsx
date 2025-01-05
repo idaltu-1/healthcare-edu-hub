@@ -34,6 +34,7 @@ const Forum = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isNewTopicOpen, setIsNewTopicOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchCategories();
@@ -50,11 +51,12 @@ const Forum = () => {
       
       if (error) {
         console.error("Error fetching categories:", error);
-        throw error;
+        toast.error("Failed to load forum categories");
+        return;
       }
       
-      console.log("Categories fetched:", data);
-      setCategories(data);
+      console.log("Categories fetched successfully:", data);
+      setCategories(data || []);
     } catch (error) {
       console.error("Error in fetchCategories:", error);
       toast.error("Failed to load forum categories");
@@ -62,6 +64,7 @@ const Forum = () => {
   };
 
   const fetchTopics = async () => {
+    setIsLoading(true);
     try {
       console.log("Fetching topics with category filter:", selectedCategory);
       let query = supabase
@@ -81,7 +84,8 @@ const Forum = () => {
       
       if (error) {
         console.error("Error fetching topics:", error);
-        throw error;
+        toast.error("Failed to load forum topics");
+        return;
       }
 
       console.log("Raw topics data:", data);
@@ -97,6 +101,8 @@ const Forum = () => {
     } catch (error) {
       console.error("Error in fetchTopics:", error);
       toast.error("Failed to load forum topics");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -123,16 +129,17 @@ const Forum = () => {
         .single();
 
       if (error) {
-        console.error("Error inserting topic:", error);
-        throw error;
+        console.error("Error creating topic:", error);
+        toast.error("Failed to create topic");
+        return;
       }
 
       console.log("Topic created successfully:", data);
       toast.success("Topic created successfully");
       setIsNewTopicOpen(false);
-      await fetchTopics();
+      fetchTopics(); // Refresh the topics list
     } catch (error) {
-      console.error("Error creating topic:", error);
+      console.error("Error in handleCreateTopic:", error);
       toast.error("Failed to create topic");
     }
   };
@@ -141,16 +148,20 @@ const Forum = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <ForumHeader onNewTopic={() => setIsNewTopicOpen(true)} />
         <div className="flex justify-between items-center mb-8">
-          <ForumHeader onNewTopic={() => setIsNewTopicOpen(true)} />
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
           <CategoryManagement onCategoryCreated={fetchCategories} />
         </div>
-        <CategoryFilter
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
-        <TopicList topics={topics} />
+        {isLoading ? (
+          <div className="text-center py-8">Loading topics...</div>
+        ) : (
+          <TopicList topics={topics} />
+        )}
         <NewTopicDialog
           isOpen={isNewTopicOpen}
           onOpenChange={setIsNewTopicOpen}
