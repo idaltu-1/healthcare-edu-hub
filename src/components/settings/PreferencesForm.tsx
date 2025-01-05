@@ -213,7 +213,7 @@ const PreferencesForm = () => {
           <SecuritySettings
             defaultValues={{
               twoFactorEnabled: false,
-              sessionTimeout: 30,
+              sessionTimeout: "30", // Changed from number to string
               loginNotifications: true,
             }}
             onSubmit={handleSecuritySubmit}

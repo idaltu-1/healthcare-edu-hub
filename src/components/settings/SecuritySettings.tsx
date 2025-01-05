@@ -12,7 +12,11 @@ const formSchema = z.object({
   loginNotifications: z.boolean(),
 });
 
-export type SecuritySettingsData = z.infer<typeof formSchema>;
+export type SecuritySettingsData = {
+  twoFactorEnabled: boolean;
+  sessionTimeout: string; // Changed from number to string
+  loginNotifications: boolean;
+};
 
 interface SecuritySettingsProps {
   defaultValues: SecuritySettingsData;
@@ -22,10 +26,7 @@ interface SecuritySettingsProps {
 const SecuritySettings = ({ defaultValues, onSubmit }: SecuritySettingsProps) => {
   const form = useForm<SecuritySettingsData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      ...defaultValues,
-      sessionTimeout: String(defaultValues.sessionTimeout),
-    },
+    defaultValues,
   });
 
   return (
