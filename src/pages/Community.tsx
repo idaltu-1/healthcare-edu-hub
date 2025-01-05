@@ -1,115 +1,52 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Users, MessageSquare, Search, UserPlus } from "lucide-react";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
+import Navbar from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import Navbar from "@/components/Navbar";
-import { Input } from "@/components/ui/input";
-import { useSession } from "@supabase/auth-helpers-react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { MessageCircle, UserPlus, Users } from "lucide-react";
 
-type CommunityMember = Database['public']['Tables']['community_members']['Row'];
+interface CommunityMember {
+  id: string;
+  user_id: string;
+  full_name: string;
+  specialty: string;
+  location: string;
+  created_at: string;
+}
 
 const Community = () => {
   const session = useSession();
+  const supabase = useSupabaseClient();
   const [members, setMembers] = useState<CommunityMember[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isMember, setIsMember] = useState(false);
-  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<CommunityMember | null>(null);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageContent, setMessageContent] = useState("");
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
-    fetchMembers();
-    if (session?.user) {
-      checkMembership();
-    }
-  }, [session]);
+    fetchCommunityMembers();
+  }, []);
 
-  const fetchMembers = async () => {
+  const fetchCommunityMembers = async () => {
     try {
-      console.log("Fetching community members...");
       const { data, error } = await supabase
-        .from('community_members')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching members:", error);
-        throw error;
-      }
-      console.log("Fetched members:", data);
-      setMembers(data || []);
-    } catch (error) {
-      console.error("Error fetching members:", error);
-      toast.error("Failed to load community members");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const checkMembership = async () => {
-    if (!session?.user) {
-      console.log("No session, skipping membership check");
-      return;
-    }
-    
-    try {
-      console.log("Checking membership for user:", session.user.id);
-      const { data, error } = await supabase
-        .from('community_members')
-        .select('id')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error("Error checking membership:", error);
-        throw error;
-      }
-      setIsMember(!!data);
-      console.log("Membership status:", !!data);
-    } catch (error) {
-      console.error("Error checking membership:", error);
-    }
-  };
-
-  const handleJoinCommunity = async () => {
-    if (!session) {
-      toast.error("Please sign in to join the community");
-      return;
-    }
-
-    try {
-      console.log("Attempting to join community...");
-      const { error } = await supabase
-        .from('community_members')
-        .insert([
-          {
-            user_id: session.user.id,
-            full_name: session.user.email?.split("@")[0] || "Anonymous",
-            specialty: "Not specified",
-            location: "Not specified",
-          },
-        ]);
+        .from("community_members")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      toast.success("Successfully joined the community!");
-      setIsMember(true);
-      fetchMembers();
-    } catch (error) {
-      console.error("Error joining community:", error);
-      toast.error("Failed to join community");
+      setMembers(data || []);
+    } catch (error: any) {
+      console.error("Error fetching members:", error);
+      toast.error("Failed to load community members");
     }
   };
 
@@ -133,18 +70,16 @@ const Community = () => {
     console.log("Attempting to send message to:", selectedMember.user_id);
 
     try {
-      const { error } = await supabase
-        .from('direct_messages')
-        .insert([
-          {
-            sender_id: session.user.id,
-            recipient_id: selectedMember.user_id,
-            content: messageContent.trim(),
-          },
-        ]);
+      const { error } = await supabase.functions.invoke('send-message', {
+        body: {
+          senderId: session.user.id,
+          recipientId: selectedMember.user_id,
+          content: messageContent.trim()
+        }
+      });
 
       if (error) {
-        console.error("Database error when sending message:", error);
+        console.error("Error from edge function:", error);
         throw error;
       }
 
@@ -161,125 +96,105 @@ const Community = () => {
     }
   };
 
-  const openMessageDialog = (member: CommunityMember) => {
-    if (!session) {
-      toast.error("Please sign in to send messages");
+  const handleConnect = async (member: CommunityMember) => {
+    if (!session?.user) {
+      toast.error("Please sign in to connect with members");
       return;
     }
-    console.log("Opening message dialog for member:", member);
-    setSelectedMember(member);
-    setMessageDialogOpen(true);
+
+    try {
+      const { error } = await supabase.from("connections").insert([
+        {
+          user_id: session.user.id,
+          connected_user_id: member.user_id,
+          status: "pending",
+        },
+      ]);
+
+      if (error) throw error;
+      toast.success(`Connection request sent to ${member.full_name}`);
+    } catch (error: any) {
+      console.error("Error connecting:", error);
+      toast.error("Failed to send connection request");
+    }
   };
 
-  const filteredMembers = members.filter(
-    (member) =>
-      member.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (member.specialty?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (member.location?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <div className="min-h-screen bg-primary-foreground">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-12">
-          <Users className="mx-auto h-12 w-12 text-primary mb-4" />
-          <h1 className="text-4xl font-bold text-primary mb-4">
-            Healthcare Professional Community
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            Connect with fellow healthcare professionals, share experiences, and
-            grow together in your business journey.
-          </p>
-          {!isMember && (
-            <Button
-              onClick={handleJoinCommunity}
-              className="bg-primary hover:bg-primary/90"
-              disabled={!session}
-            >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Join Community
-            </Button>
-          )}
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex items-center gap-3 mb-8">
+          <Users className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold text-primary">Community</h1>
         </div>
 
-        <div className="mb-8">
-          <div className="max-w-md mx-auto">
-            <Input
-              type="search"
-              placeholder="Search members by name, specialty, or location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
-            <p className="text-center col-span-3">Loading members...</p>
-          ) : filteredMembers.length > 0 ? (
-            filteredMembers.map((member) => (
-              <Card
-                key={member.id}
-                className="hover:shadow-lg transition-shadow duration-300"
-              >
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-2">
-                    {member.full_name}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-1">
-                    {member.specialty || "Specialty not specified"}
-                  </p>
-                  <p className="text-gray-600 text-sm mb-4">
-                    {member.location || "Location not specified"}
-                  </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {members.map((member) => (
+            <Card key={member.id} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-2">{member.full_name}</h3>
+                <p className="text-gray-600 mb-1">{member.specialty}</p>
+                <p className="text-gray-600 mb-4">{member.location}</p>
+                <div className="flex gap-2">
                   <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => openMessageDialog(member)}
+                    variant="default"
+                    className="flex-1"
+                    onClick={() => {
+                      setSelectedMember(member);
+                      setMessageDialogOpen(true);
+                    }}
                   >
-                    <MessageSquare className="mr-2 h-4 w-4" />
+                    <MessageCircle className="h-4 w-4 mr-2" />
                     Message
                   </Button>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p className="text-center col-span-3">No members found</p>
-          )}
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleConnect(member)}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Connect
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </div>
 
-      <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Send Message to {selectedMember?.full_name}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              placeholder="Type your message here..."
-              value={messageContent}
-              onChange={(e) => setMessageContent(e.target.value)}
-              className="min-h-[100px]"
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setMessageDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSendMessage}
-              disabled={isSending || !messageContent.trim()}
-            >
-              {isSending ? "Sending..." : "Send Message"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <Dialog open={messageDialogOpen} onOpenChange={setMessageDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Send Message to {selectedMember?.full_name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Type your message..."
+                value={messageContent}
+                onChange={(e) => setMessageContent(e.target.value)}
+                disabled={isSending}
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setMessageDialogOpen(false)}
+                  disabled={isSending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={handleSendMessage}
+                  disabled={isSending}
+                >
+                  {isSending ? "Sending..." : "Send Message"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </main>
     </div>
   );
 };
