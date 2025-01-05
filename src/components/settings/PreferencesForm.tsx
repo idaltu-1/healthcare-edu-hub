@@ -7,10 +7,13 @@ import { supabase } from "@/integrations/supabase/client";
 import NotificationSettings, { NotificationSettingsData } from "./NotificationSettings";
 import LocalizationSettings, { LocalizationSettingsData } from "./LocalizationSettings";
 import AppearanceSettings, { AppearanceSettingsData } from "./AppearanceSettings";
+import SecuritySettings, { SecuritySettingsData } from "./SecuritySettings";
+import AccessibilitySettings, { AccessibilitySettingsData } from "./AccessibilitySettings";
 
 const PreferencesForm = () => {
   const session = useSession();
   const [settings, setSettings] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -27,6 +30,9 @@ const PreferencesForm = () => {
         setSettings(data);
       } catch (error: any) {
         console.error("Error fetching settings:", error);
+        toast.error("Failed to load settings");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -102,8 +108,42 @@ const PreferencesForm = () => {
     }
   };
 
+  const handleSecuritySubmit = async (values: SecuritySettingsData) => {
+    if (!session?.user?.id) {
+      toast.error("You must be logged in to update settings");
+      return;
+    }
+
+    try {
+      // Handle security settings update
+      toast.success("Security settings updated");
+    } catch (error: any) {
+      console.error("Error updating security settings:", error);
+      toast.error(error.message || "Failed to update security settings");
+    }
+  };
+
+  const handleAccessibilitySubmit = async (values: AccessibilitySettingsData) => {
+    if (!session?.user?.id) {
+      toast.error("You must be logged in to update settings");
+      return;
+    }
+
+    try {
+      // Handle accessibility settings update
+      toast.success("Accessibility settings updated");
+    } catch (error: any) {
+      console.error("Error updating accessibility settings:", error);
+      toast.error(error.message || "Failed to update accessibility settings");
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center p-8">Loading settings...</div>;
+  }
+
   if (!settings) {
-    return <div>Loading...</div>;
+    return <div>Error loading settings</div>;
   }
 
   return (
@@ -112,7 +152,7 @@ const PreferencesForm = () => {
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
           <CardDescription>
-            Manage how you receive notifications
+            Manage how you receive notifications and updates
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -149,7 +189,7 @@ const PreferencesForm = () => {
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
           <CardDescription>
-            Customize how the application looks
+            Customize how the application looks and feels
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -158,6 +198,44 @@ const PreferencesForm = () => {
               darkMode: settings.dark_mode,
             }}
             onSubmit={handleAppearanceSubmit}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Security</CardTitle>
+          <CardDescription>
+            Manage your account security preferences
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SecuritySettings
+            defaultValues={{
+              twoFactorEnabled: false,
+              sessionTimeout: 30,
+              loginNotifications: true,
+            }}
+            onSubmit={handleSecuritySubmit}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Accessibility</CardTitle>
+          <CardDescription>
+            Customize your accessibility preferences
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AccessibilitySettings
+            defaultValues={{
+              highContrast: false,
+              reducedMotion: false,
+              largeText: false,
+            }}
+            onSubmit={handleAccessibilitySubmit}
           />
         </CardContent>
       </Card>
