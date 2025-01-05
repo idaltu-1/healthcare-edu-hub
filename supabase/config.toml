@@ -15,3 +15,19 @@ port = 54323
 [[functions]]
 name = "send-message"
 verify_jwt = true
+
+[[functions]]
+name = "send-sms"
+verify_jwt = true
+
+[[functions]]
+name = "receive-sms"
+verify_jwt = false
+
+[[functions]]
+name = "send-email"
+verify_jwt = true
+
+[[functions]]
+name = "receive-email"
+verify_jwt = false

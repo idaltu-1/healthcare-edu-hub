@@ -204,6 +204,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_messages: {
+        Row: {
+          content: string
+          created_at: string
+          direction: string
+          from_email: string
+          id: string
+          status: string
+          subject: string
+          to_email: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          direction: string
+          from_email: string
+          id?: string
+          status?: string
+          subject: string
+          to_email: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          direction?: string
+          from_email?: string
+          id?: string
+          status?: string
+          subject?: string
+          to_email?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       forum_categories: {
         Row: {
           created_at: string
@@ -343,6 +382,39 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      sms_messages: {
+        Row: {
+          content: string
+          created_at: string
+          direction: string
+          id: string
+          phone_number: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          direction: string
+          id?: string
+          phone_number: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          phone_number?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
