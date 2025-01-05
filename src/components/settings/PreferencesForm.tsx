@@ -1,52 +1,16 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useSession } from "@supabase/auth-helpers-react";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
-const formSchema = z.object({
-  emailNotifications: z.boolean(),
-  smsNotifications: z.boolean(),
-  marketingEmails: z.boolean(),
-  language: z.string(),
-  timezone: z.string(),
-  darkMode: z.boolean(),
-});
-
-const languages = [
-  { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-];
-
-const timezones = [
-  { value: "UTC", label: "UTC" },
-  { value: "America/New_York", label: "Eastern Time" },
-  { value: "America/Chicago", label: "Central Time" },
-  { value: "America/Denver", label: "Mountain Time" },
-  { value: "America/Los_Angeles", label: "Pacific Time" },
-];
+import NotificationSettings, { NotificationSettingsData } from "./NotificationSettings";
+import LocalizationSettings, { LocalizationSettingsData } from "./LocalizationSettings";
+import AppearanceSettings, { AppearanceSettingsData } from "./AppearanceSettings";
 
 const PreferencesForm = () => {
   const session = useSession();
-
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      emailNotifications: true,
-      smsNotifications: false,
-      marketingEmails: false,
-      language: "en",
-      timezone: "UTC",
-      darkMode: false,
-    },
-  });
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -60,17 +24,7 @@ const PreferencesForm = () => {
           .single();
 
         if (error) throw error;
-
-        if (data) {
-          form.reset({
-            emailNotifications: data.email_notifications,
-            smsNotifications: data.sms_notifications,
-            marketingEmails: data.marketing_emails,
-            language: data.language,
-            timezone: data.timezone,
-            darkMode: data.dark_mode,
-          });
-        }
+        setSettings(data);
       } catch (error: any) {
         console.error("Error fetching settings:", error);
       }
@@ -79,7 +33,7 @@ const PreferencesForm = () => {
     fetchSettings();
   }, [session?.user?.id]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleNotificationSubmit = async (values: NotificationSettingsData) => {
     if (!session?.user?.id) {
       toast.error("You must be logged in to update settings");
       return;
@@ -93,153 +47,121 @@ const PreferencesForm = () => {
           email_notifications: values.emailNotifications,
           sms_notifications: values.smsNotifications,
           marketing_emails: values.marketingEmails,
+        });
+
+      if (error) throw error;
+      toast.success("Notification settings updated");
+    } catch (error: any) {
+      console.error("Error updating notification settings:", error);
+      toast.error(error.message || "Failed to update notification settings");
+    }
+  };
+
+  const handleLocalizationSubmit = async (values: LocalizationSettingsData) => {
+    if (!session?.user?.id) {
+      toast.error("You must be logged in to update settings");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("user_settings")
+        .upsert({
+          user_id: session.user.id,
           language: values.language,
           timezone: values.timezone,
+        });
+
+      if (error) throw error;
+      toast.success("Localization settings updated");
+    } catch (error: any) {
+      console.error("Error updating localization settings:", error);
+      toast.error(error.message || "Failed to update localization settings");
+    }
+  };
+
+  const handleAppearanceSubmit = async (values: AppearanceSettingsData) => {
+    if (!session?.user?.id) {
+      toast.error("You must be logged in to update settings");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("user_settings")
+        .upsert({
+          user_id: session.user.id,
           dark_mode: values.darkMode,
         });
 
       if (error) throw error;
-      toast.success("Settings updated successfully");
+      toast.success("Appearance settings updated");
     } catch (error: any) {
-      console.error("Error updating settings:", error);
-      toast.error(error.message || "Failed to update settings");
+      console.error("Error updating appearance settings:", error);
+      toast.error(error.message || "Failed to update appearance settings");
     }
   };
 
+  if (!settings) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="emailNotifications"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Email Notifications</FormLabel>
-                <FormMessage />
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Notifications</CardTitle>
+          <CardDescription>
+            Manage how you receive notifications
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NotificationSettings
+            defaultValues={{
+              emailNotifications: settings.email_notifications,
+              smsNotifications: settings.sms_notifications,
+              marketingEmails: settings.marketing_emails,
+            }}
+            onSubmit={handleNotificationSubmit}
+          />
+        </CardContent>
+      </Card>
 
-        <FormField
-          control={form.control}
-          name="smsNotifications"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">SMS Notifications</FormLabel>
-                <FormMessage />
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+      <Card>
+        <CardHeader>
+          <CardTitle>Localization</CardTitle>
+          <CardDescription>
+            Customize your language and timezone preferences
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LocalizationSettings
+            defaultValues={{
+              language: settings.language,
+              timezone: settings.timezone,
+            }}
+            onSubmit={handleLocalizationSubmit}
+          />
+        </CardContent>
+      </Card>
 
-        <FormField
-          control={form.control}
-          name="marketingEmails"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Marketing Emails</FormLabel>
-                <FormMessage />
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="language"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Language</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a language" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {languages.map((language) => (
-                    <SelectItem key={language.value} value={language.value}>
-                      {language.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="timezone"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Timezone</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a timezone" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {timezones.map((timezone) => (
-                    <SelectItem key={timezone.value} value={timezone.value}>
-                      {timezone.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="darkMode"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Dark Mode</FormLabel>
-                <FormMessage />
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" className="w-full">
-          Save Preferences
-        </Button>
-      </form>
-    </Form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Appearance</CardTitle>
+          <CardDescription>
+            Customize how the application looks
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AppearanceSettings
+            defaultValues={{
+              darkMode: settings.dark_mode,
+            }}
+            onSubmit={handleAppearanceSubmit}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
