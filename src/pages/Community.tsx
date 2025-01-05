@@ -39,12 +39,17 @@ const Community = () => {
 
   const fetchMembers = async () => {
     try {
+      console.log("Fetching community members...");
       const { data, error } = await supabase
         .from('community_members')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching members:", error);
+        throw error;
+      }
+      console.log("Fetched members:", data);
       setMembers(data || []);
     } catch (error) {
       console.error("Error fetching members:", error);
@@ -55,17 +60,25 @@ const Community = () => {
   };
 
   const checkMembership = async () => {
-    if (!session?.user) return;
+    if (!session?.user) {
+      console.log("No session, skipping membership check");
+      return;
+    }
     
     try {
+      console.log("Checking membership for user:", session.user.id);
       const { data, error } = await supabase
         .from('community_members')
         .select('id')
         .eq('user_id', session.user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error checking membership:", error);
+        throw error;
+      }
       setIsMember(!!data);
+      console.log("Membership status:", !!data);
     } catch (error) {
       console.error("Error checking membership:", error);
     }
@@ -78,6 +91,7 @@ const Community = () => {
     }
 
     try {
+      console.log("Attempting to join community...");
       const { error } = await supabase
         .from('community_members')
         .insert([
@@ -100,8 +114,13 @@ const Community = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!session?.user || !selectedMember) {
+    if (!session?.user) {
       toast.error("Please sign in to send messages");
+      return;
+    }
+
+    if (!selectedMember) {
+      toast.error("No recipient selected");
       return;
     }
 
@@ -111,6 +130,7 @@ const Community = () => {
     }
 
     setIsSending(true);
+    console.log("Attempting to send message to:", selectedMember.user_id);
 
     try {
       const { error } = await supabase
@@ -123,15 +143,19 @@ const Community = () => {
           },
         ]);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error when sending message:", error);
+        throw error;
+      }
 
+      console.log("Message sent successfully");
       toast.success("Message sent successfully!");
       setMessageContent("");
       setMessageDialogOpen(false);
       setSelectedMember(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      toast.error(error.message || "Failed to send message");
     } finally {
       setIsSending(false);
     }
@@ -142,6 +166,7 @@ const Community = () => {
       toast.error("Please sign in to send messages");
       return;
     }
+    console.log("Opening message dialog for member:", member);
     setSelectedMember(member);
     setMessageDialogOpen(true);
   };
